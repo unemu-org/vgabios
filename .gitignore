@@ -1,0 +1,14 @@
+/result
+/result-*
+biossums
+vbetables-gen
+vbetables.h
+_*_.c
+_*_.s
+*.o
+*.s
+*.ld86
+vgabios*.bin
+vgabios*.txt
+rom.bin
+rom.txt
