@@ -49,6 +49,12 @@
 
 #include "vgabios.h"
 
+// CPU386 selects the upstream 32-bit code paths. Without it the BIOS is
+// 80286 real-mode code. VBE, CIRRUS, BANSHEE and PCIBIOS imply it.
+#if !defined(CPU386) && (defined(VBE) || defined(CIRRUS) || defined(BANSHEE) || defined(PCIBIOS))
+#define CPU386
+#endif
+
 #ifdef VBE
 #include "vbe.h"
 #define VGAEXT
@@ -158,7 +164,11 @@ ASM_START
 
 .org 0
 
+#ifdef CPU386
 use16 386
+#else
+use16 286
+#endif
 
 vgabios_start:
 .byte 0x55, 0xaa /* BIOS signature, required for BIOS extensions */
@@ -3878,10 +3888,21 @@ no_save_hw_state:
      movsb
   xor   ax, ax
   mov   ds, ax
+#ifdef CPU386
   mov   eax, 0x007c ;; INT 0x1F
   stosd
   mov   eax, 0x010c ;; INT 0x43
   stosd
+#else
+  mov   ax, 0x007c ;; INT 0x1F
+  stosw
+  mov   ax, 0x007e
+  stosw
+  mov   ax, 0x010c ;; INT 0x43
+  stosw
+  mov   ax, 0x010e
+  stosw
+#endif
   mov   bx, di
   pop   si
   pop   cx
@@ -4062,12 +4083,27 @@ no_rest_hw_state:
      movsb
   xor   ax, ax
   mov   es, ax
+#ifdef CPU386
   lodsd
   seg   es
   mov   0x007c, eax ;; INT 0x1F
   lodsd
   seg   es
   mov   0x010c, eax ;; INT 0x43
+#else
+  lodsw
+  seg   es
+  mov   0x007c, ax ;; INT 0x1F
+  lodsw
+  seg   es
+  mov   0x007e, ax
+  lodsw
+  seg   es
+  mov   0x010c, ax ;; INT 0x43
+  lodsw
+  seg   es
+  mov   0x010e, ax
+#endif
   mov   bx, si
   push  ds
   pop   es
@@ -4727,6 +4763,7 @@ _pci_get_lfb_addr:
   ret
 #endif
 
+#ifdef CPU386
   ; read PCI register
   ; in - cx: device/function
   ; in - dl: register
@@ -4741,6 +4778,7 @@ pci_read_reg:
   add dl, #4
   in  eax, dx
   ret
+#endif
 
   ; get CRTC address from VGA misc output setting
   ; out - dx: CRTC address

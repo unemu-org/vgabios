@@ -54,6 +54,8 @@
       packages = forAll (system: rec {
         # Standard VGA for ISA machines (the unemu 286/386 AT profiles).
         std = romFor system { name = "std"; flags = ""; };
+        # The same with upstream's 32-bit code paths (for 386+ machines).
+        std386 = romFor system { name = "std386"; flags = "-DCPU386"; };
         default = std;
       });
 
