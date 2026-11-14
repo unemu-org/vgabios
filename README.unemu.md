@@ -19,7 +19,7 @@ never depend on proprietary ROMs.
 ```sh
 nix build            # result/vgabios-std.bin, .lst (listing), .bin.sha256
 nix develop          # dev86 (bcc, as86, ld86), make, nasm/ndisasm
-scripts/check-286.sh result/vgabios-std.lst
+nix flake check      # std: check-286.sh, 32 KiB, 55 AA 40, zero checksum
 ```
 
 `std` is the standard ISA VGA build: the upstream source with no `VBE`,
@@ -72,9 +72,7 @@ SHA-256.
 
 ## Plan
 
-1. Make `check-286.sh` part of the build (a Nix check), so a regression fails
-   the build.
-2. Tag releases. The tag message states the source revision and the SHA-256 of
+1. Tag releases. The tag message states the source revision and the SHA-256 of
    the std ROM and of the probe image. unemupc98 fetches both by SHA-256
    (`vendor/vgabios/fetch.sh`) and lists the ROM in its firmware catalogue as
    open firmware.

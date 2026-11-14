@@ -40,7 +40,8 @@ tag, e.g. `upc-zvt (unemupc98)`; an untagged id is ours.
 
 ```sh
 nix build                                  # result/vgabios-std.bin, .lst, .bin.sha256
-scripts/check-286.sh result/vgabios-std.lst
+nix flake check                            # check-286.sh, 55 AA 40, size, zero checksum
+nix build .#int10-probe                     # INT 10h probe floppy (tests/unemu)
 nix develop                                # dev86 (bcc, as86, ld86), make, nasm/ndisasm
 ```
 

@@ -84,6 +84,27 @@
           };
       });
 
+      # nix flake check: the std ROM must be 80286 code (scripts/check-286.sh)
+      # and a valid option ROM (32 KiB, 55 AA, length byte, zero checksum).
+      checks = forAll (system:
+        let
+          pkgs = pkgsFor system;
+          std = self.packages.${system}.std;
+        in {
+          std-286 = pkgs.runCommand "vgabios-std-286-check" { } ''
+            rom=${std}/vgabios-std.bin
+            bash ${./scripts/check-286.sh} ${std}/vgabios-std.lst
+            size=$(stat -c %s $rom)
+            [ "$size" = 32768 ] || { echo "ROM size $size, not 32768" >&2; exit 1; }
+            sig=$(od -An -tx1 -N3 $rom | tr -d ' \n')
+            [ "$sig" = 55aa40 ] || { echo "ROM header $sig, not 55aa40" >&2; exit 1; }
+            sum=$(od -An -v -tu1 $rom | awk '{ for (i = 1; i <= NF; i++) s += $i } END { print s % 256 }')
+            [ "$sum" = 0 ] || { echo "ROM checksum $sum, not 0" >&2; exit 1; }
+            echo "std ROM: 286 code, 32 KiB, 55 AA 40, zero checksum"
+            touch $out
+          '';
+        });
+
       devShells = forAll (system:
         let pkgs = pkgsFor system; in {
           default = pkgs.mkShell {
