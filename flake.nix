@@ -57,6 +57,31 @@
         # The same with upstream's 32-bit code paths (for 386+ machines).
         std386 = romFor system { name = "std386"; flags = "-DCPU386"; };
         default = std;
+        # INT 10h probe: a bootable 1.2M floppy image (tests/unemu).
+        int10-probe =
+          let pkgs = pkgsFor system; in
+          pkgs.stdenv.mkDerivation {
+            pname = "vgabios-int10-probe";
+            version = "0.8a-unemu";
+            src = ./tests/unemu;
+            nativeBuildInputs = [ pkgs.nasm ];
+            dontConfigure = true;
+            buildPhase = ''
+              runHook preBuild
+              nasm -f bin -o probe.bin -l probe.lst int10-probe.asm
+              cp probe.bin probe.img
+              truncate -s 1228800 probe.img
+              runHook postBuild
+            '';
+            installPhase = ''
+              runHook preInstall
+              mkdir -p $out
+              cp probe.img $out/int10-probe-1200.img
+              cp probe.lst $out/int10-probe.lst
+              sha256sum $out/int10-probe-1200.img | cut -d' ' -f1 > $out/int10-probe-1200.img.sha256
+              runHook postInstall
+            '';
+          };
       });
 
       devShells = forAll (system:

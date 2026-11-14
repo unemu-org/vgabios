@@ -29,6 +29,19 @@ upstream's 32-bit code paths. The version string and date are fixed
 in `flake.nix`, so the same source always gives the same ROM bytes.
 nixpkgs marks dev86 as Linux-only; the flake lifts that, and it builds on macOS.
 
+## INT 10h probe
+
+`nix build .#int10-probe` gives `int10-probe-1200.img`, a bootable 1.2M
+floppy built from `tests/unemu/int10-probe.asm`, with its listing and SHA-256.
+It checks the video BIOS in modes 03h, 0Dh and 13h by reading registers and
+video memory back: mode set and BIOS data area, the 8x16 font in plane 2,
+cursor, teletype, scroll, active page (CRTC start), pixel write/read, plane
+bits, pel panning, DAC and AH=1Ch save/restore. It then returns to mode 03h,
+prints `name ok` or `name FAIL` for each check and the number of failures, and
+halts. The checks do not judge the picture: scanout belongs to the emulator's
+own tests. unemupc98 uses the image as an open test fixture, pinned by its
+SHA-256.
+
 ## Status
 
 - The `std` build is 32 KiB, starts with `55 AA`, its 8-bit checksum is zero,
@@ -37,6 +50,8 @@ nixpkgs marks dev86 as Linux-only; the flake lifts that, and it builds on macOS.
   prefixes 66/67/64/65 and 0F opcodes other than 0F00-0F06).
 - `std386` gives the same bytes as the upstream 0.8a source built with no
   define.
+- On unemupc98's open AT profile (`at-games-open` with a VGA card, the ROM at
+  C0000) FreeDOS boots to the prompt and the INT 10h probe reports no failure.
 
 ## Deviations from upstream
 
@@ -59,8 +74,7 @@ nixpkgs marks dev86 as Linux-only; the flake lifts that, and it builds on macOS.
 
 1. Make `check-286.sh` part of the build (a Nix check), so a regression fails
    the build.
-2. Boot the ROM in unemupc98's `at-games-open` profile (open AT BIOS, VGA card):
-   text mode 3, EGA mode 0Dh with pel panning, mode 13h. Fix what breaks, with
-   a note in this file for each deviation from upstream.
-3. Tag releases. unemupc98 fetches the ROM by SHA-256 (`vendor/vgabios/fetch.sh`)
-   and lists it in its firmware catalogue as open firmware.
+2. Tag releases. The tag message states the source revision and the SHA-256 of
+   the std ROM and of the probe image. unemupc98 fetches both by SHA-256
+   (`vendor/vgabios/fetch.sh`) and lists the ROM in its firmware catalogue as
+   open firmware.
