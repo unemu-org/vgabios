@@ -20,3 +20,7 @@ rom.txt
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# Personal git hooks (core.hooksPath points at .beads/hooks); not part of the tree
+/.beads/hooks/pre-commit
+/.beads/hooks/pre-commit.backup
