@@ -12,6 +12,11 @@ never depend on proprietary ROMs.
   `vgabios-0.8a` (tarball SHA-256
   `481042240ef0f1c918780c92a6bb42ad4d3f5d989b29502fa7ee7faf13a041b9`).
 - The first commit is that release verbatim; every later commit is our change.
+- The upstream project's repository on GitHub is
+  <https://github.com/bochs-emu/VGABIOS>; the GitHub repository above is
+  forked from it. Its `v0_8a` tag holds the same sources under `vgabios/`,
+  which differ from the tarball only in the expanded `$Id$` keyword lines. Our
+  history starts from the tarball, so it does not share commits with it.
 - Licence: GNU LGPL 2.1, see `COPYING`. Copyright the LGPL VGABios developers
   and the contributors to this fork.
 
