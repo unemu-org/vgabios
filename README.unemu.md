@@ -108,6 +108,12 @@ SHA-256.
     does not change.
   - `pci_read_reg` (32-bit PCI configuration access) is not assembled. Only
     the `VBE`, `CIRRUS` and `BANSHEE` code calls it.
+- Prebuilt binaries removed: upstream's `VGABIOS-lgpl-latest*.bin` (the
+  `VBE`, `CIRRUS` and `BANSHEE` builds and their debug variants) were built
+  from unmodified 0.8a. Their corresponding source is commit `ad26c4a`, not
+  this tree, so they would ship next to source that does not match them.
+  `make` still builds them from this tree, and `.gitignore` keeps them out.
+  The upstream `README` still mentions them as precompiled files.
 
 ## Plan
 

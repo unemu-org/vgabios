@@ -9,6 +9,7 @@ _*_.s
 *.s
 *.ld86
 vgabios*.bin
+/VGABIOS-lgpl-latest*.bin
 vgabios*.txt
 rom.bin
 rom.txt
