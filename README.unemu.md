@@ -87,8 +87,9 @@ SHA-256.
   prefixes 66/67/64/65 and 0F opcodes other than 0F00-0F06).
 - `std386` gives the same bytes as the upstream 0.8a source built with no
   define.
-- The std ROM and the probe image match `releaseSha256` on aarch64-darwin.
-  x86_64-linux, aarch64-linux and x86_64-darwin are not verified yet.
+- The std ROM and the probe image match `releaseSha256` on aarch64-darwin and,
+  in CI, on x86_64-linux; std386 gives the same bytes on both. aarch64-linux
+  and x86_64-darwin are not verified yet.
 - On unemupc98's open AT profile (`at-games-open` with a VGA card, the ROM at
   C0000) FreeDOS boots to the prompt and the INT 10h probe reports no failure.
 
@@ -115,9 +116,22 @@ SHA-256.
   `make` still builds them from this tree, and `.gitignore` keeps them out.
   The upstream `README` still mentions them as precompiled files.
 
-## Plan
+## Releases
 
-1. Tag releases. The tag message states the source revision and the SHA-256 of
-   the std ROM and of the probe image. unemupc98 fetches both by SHA-256
-   (`vendor/vgabios/fetch.sh`) and lists the ROM in its firmware catalogue as
-   open firmware.
+A release is a signed tag `v0.8a-unemu.N`. Its message states the source
+revision and the SHA-256s of `vgabios-std.bin` and `int10-probe-1200.img`,
+the same values as `releaseSha256` in `flake.nix`. To check a release:
+
+```sh
+git tag -v v0.8a-unemu.N     # the tag signature
+git checkout v0.8a-unemu.N
+nix flake check              # the 286 check and both SHA-256s
+```
+
+CI (`.forgejo/workflows/ci.yml`) runs `nix flake check` on x86_64-linux for
+every push to main, every release tag and every pull request, and prints the
+SHA-256s in its log. A release is tagged only on a commit whose CI run passed.
+
+unemupc98 fetches both files by SHA-256 (`vendor/vgabios/fetch.sh`), ships
+them with their corresponding source, and lists the ROM in its firmware
+catalogue as open firmware.
