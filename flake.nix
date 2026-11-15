@@ -1,7 +1,8 @@
 {
   description = "LGPL VGABIOS fork for unemu machines: reproducible standard-VGA ROM builds";
 
-  # Same nixpkgs revision as unemupc98, so both repositories share one toolchain.
+  # Pinned nixpkgs: the ROM and probe bytes depend on its dev86, GCC and nasm
+  # (README.unemu.md, "Reproducibility"). Moving it can change releaseSha256.
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/62e0f05ede1da0d54515d4ea8ce9c733f12d9f08";
 
   outputs = { self, nixpkgs }:
