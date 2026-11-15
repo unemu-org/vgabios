@@ -1,0 +1,62 @@
+name: CI
+
+# The Forgejo runner's ubuntu-latest label is a node:20-bookworm container on
+# x86-64 Linux that runs as root without an init system, so Nix comes from the
+# pinned installer with --init none and without a build sandbox (the container
+# does not grant the namespaces it needs).
+#
+# The job checks what consumers rely on: the std ROM is 80286 code with a valid
+# option-ROM header, and the std ROM and probe image have the SHA-256s that
+# releaseSha256 in flake.nix (and the release tag) state. See README.unemu.md,
+# "Reproducibility".
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    name: check (x86_64-linux)
+    runs-on: ubuntu-latest
+    steps:
+      # The build needs no credentials; keep the job token out of .git/config.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        env:
+          NIX_INSTALLER_DIAGNOSTIC_ENDPOINT: ""
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix/tag/v3.24.1 \
+            | sh -s -- install linux --init none --no-confirm \
+                --extra-conf "sandbox = false" --extra-conf "filter-syscalls = false"
+          echo /nix/var/nix/profiles/default/bin >> "$GITHUB_PATH"
+
+      # std-286: check-286.sh, 32 KiB, 55 AA 40, zero checksum.
+      # release-sha256: std ROM and probe image against releaseSha256.
+      - name: nix flake check
+        run: nix flake check -L --no-update-lock-file
+
+      # The hashes in the log are the x86_64-linux data point for a release.
+      - name: SHA-256s
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          for p in std std386 int10-probe; do
+            out=$(nix build --no-link --print-out-paths --no-update-lock-file ".#$p")
+            for f in "$out"/*.sha256; do
+              printf '%s  %s\n' "$(cat "$f")" "$(basename "${f%.sha256}")"
+            done
+          done
