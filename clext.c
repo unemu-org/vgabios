@@ -1,11 +1,8 @@
-/*
- * $Id: clext.c 292 2021-06-03 12:24:22Z vruppert $
- */
 //
 //  QEMU Cirrus CLGD 54xx VGABIOS Extension.
 //
 //  Copyright (c) 2004      Makoto Suzuki (suzu)
-//  Copyright (C) 2004-2021 Volker Ruppert
+//  Copyright (C) 2004-2026 Volker Ruppert
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -21,7 +18,6 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-//#define CIRRUS_VESA3_PMINFO
 #ifdef VBE
 #undef CIRRUS_VESA3_PMINFO
 #endif
@@ -50,11 +46,16 @@ typedef struct
 #define CIRRUS_PM16INFO_SIZE 20
 
 /* VGA */
-unsigned short cseq_vga[] = {0x0007,0xffff};
+unsigned short cseq_vga[] = {0x0007,0x0012,0xffff};
 unsigned short cgraph_vga[] = {0x0009,0x000a,0x000b,0xffff};
 unsigned short ccrtc_vga[] = {0x001a,0x001b,0x001d,0xffff};
 
 /* extensions */
+unsigned short cgraph_vgacolor[] = {
+0x0000,0x0001,0x0002,0x0003,0x0004,0x0005,0x0506,0x0f07,0xff08,
+0x0009,0x000a,0x000b,
+0xffff
+};
 unsigned short cgraph_svgacolor[] = {
 0x0000,0x0001,0x0002,0x0003,0x0004,0x4005,0x0506,0x0f07,0xff08,
 0x0009,0x000a,0x000b,
@@ -102,6 +103,34 @@ unsigned short ccrtc_640x480x24[] = {
 0x001a,0x321b,0x001d,
 0xffff
 };
+/* 640x480x32 */
+unsigned short cseq_640x480x32[] = {
+0x0300,0x2101,0x0f02,0x0003,0x0e04,0x1907,
+0x0412,0x0013,0x2017,
+0xffff
+};
+unsigned short ccrtc_640x480x32[] = {
+0x2c11,
+0x5f00,0x4f01,0x4f02,0x8003,0x5204,0x1e05,0x0b06,0x3e07,
+0x4009,0x000c,0x000d,
+0xea10,0xdf12,0x4013,0x4014,0xdf15,0x0b16,0xc317,0xff18,
+0x001a,0x321b,0x001d,
+0xffff
+};
+/* 800x600x4 */
+unsigned short cseq_800x600x4[] = {
+0x0300,0x0101,0x0f02,0x0003,0x0604,
+0x0012,0x0013,0x0616,0x2117,0x530e,0x301e,
+0x0007,
+0xffff
+};
+unsigned short ccrtc_800x600x4[] = {
+0x0b11,0x7f00,0x6301,0x6402,0x8203,0x6804,0x1205,0x6f06,0xf007,
+0x6009,0x000c,0x000d,
+0x5810,0x5712,0x3213,0x0014,0x5715,0x6f16,0xe317,0xff18,
+0x001a,0x221b,0x001d,
+0xffff
+};
 /* 800x600x8 */
 unsigned short cseq_800x600x8[] = {
 0x0300,0x2101,0x0f02,0x0003,0x0e04,
@@ -112,7 +141,7 @@ unsigned short cseq_800x600x8[] = {
 unsigned short ccrtc_800x600x8[] = {
 0x2311,0x7f00,0x6301,0x6402,0x8203,0x6b04,0x1b05,0x7206,0xf007,
 0x6009,0x000c,0x000d,
-0x7d10,0x5712,0x6413,0x4014,0x5715,0x9816,0xc317,0xff18,
+0x5910,0x5712,0x6413,0x4014,0x5815,0x7316,0xc317,0xff18,
 0x001a,0x221b,0x001d,
 0xffff
 };
@@ -126,7 +155,7 @@ unsigned short cseq_800x600x16[] = {
 unsigned short ccrtc_800x600x16[] = {
 0x2311,0x7f00,0x6301,0x6402,0x8203,0x6b04,0x1b05,0x7206,0xf007,
 0x6009,0x000c,0x000d,
-0x7d10,0x5712,0xc813,0x4014,0x5715,0x9816,0xc317,0xff18,
+0x5910,0x5712,0xc813,0x4014,0x5815,0x7316,0xc317,0xff18,
 0x001a,0x221b,0x001d,
 0xffff
 };
@@ -140,8 +169,36 @@ unsigned short cseq_800x600x24[] = {
 unsigned short ccrtc_800x600x24[] = {
 0x2311,0x7f00,0x6301,0x6402,0x8203,0x6b04,0x1b05,0x7206,0xf007,
 0x6009,0x000c,0x000d,
-0x7d10,0x5712,0x2c13,0x4014,0x5715,0x9816,0xc317,0xff18,
+0x5910,0x5712,0x8013,0x4014,0x5815,0x7316,0xc317,0xff18,
 0x001a,0x321b,0x001d,
+0xffff
+};
+/* 800x600x32 */
+unsigned short cseq_800x600x32[] = {
+0x0300,0x2101,0x0f02,0x0003,0x0e04,
+0x0412,0x0013,0x2017,0x510e,0x3a1e,
+0x1907,
+0xffff
+};
+unsigned short ccrtc_800x600x32[] = {
+0x2311,0x7f00,0x6301,0x6402,0x8203,0x6b04,0x1b05,0x7206,0xf007,
+0x6009,0x000c,0x000d,
+0x5910,0x5712,0xa013,0x4014,0x5815,0x7316,0xc317,0xff18,
+0x001a,0x321b,0x001d,
+0xffff
+};
+/* 1024x768x4 */
+unsigned short cseq_1024x768x4[] = {
+0x0300,0x0101,0x0f02,0x0003,0x0604,
+0x0012,0x0013,0x0616,0x2117,0x2c0e,0x101e,
+0x0007,
+0xffff
+};
+unsigned short ccrtc_1024x768x4[] = {
+0x0b11,0x9f00,0x7f01,0x8002,0x8203,0x8404,0x9005,0x1e06,0xf507,
+0x6009,0x000c,0x000d,
+0x0310,0xff12,0x4013,0x0014,0xff15,0x1e16,0xe317,0xff18,
+0x001a,0x221b,0x001d,
 0xffff
 };
 /* 1024x768x8 */
@@ -184,6 +241,34 @@ unsigned short ccrtc_1024x768x24[] = {
 0x6009,0x000c,0x000d,
 0x0310,0xff12,0x8013,0x4014,0xff15,0x2416,0xc317,0xff18,
 0x001a,0x321b,0x001d,
+0xffff
+};
+/* 1152x864x8 */
+unsigned short cseq_1152x864x8[] = {
+0x0300,0x2101,0x0f02,0x0003,0x0e04,
+0x0412,0x0013,0x2017,0x420e,0x151e,
+0x1107,
+0xffff
+};
+unsigned short ccrtc_1152x864x8[] = {
+0x2311,0x5700,0x4701,0x4802,0x9703,0x4b04,0x9105,0x8e06,0xff07,
+0x6009,0x000c,0x000d,
+0x6010,0x5f12,0x9013,0x0014,0x6015,0x9f16,0xe317,0xff18,
+0x001a,0x221b,0x001d,
+0xffff
+};
+/* 1280x1024x4 */
+unsigned short cseq_1280x1024x4[] = {
+0x0300,0x0101,0x0f02,0x0003,0x0604,
+0x0012,0x0013,0x0616,0x2117,0x6e0e,0x2a1e,
+0x0007,
+0xffff
+};
+unsigned short ccrtc_1280x1024x4[] = {
+0x0311,0xcf00,0x9f01,0xa002,0x8003,0xa904,0x1305,0x1406,0xb207,
+0x6009,0x000c,0x000d,
+0x0010,0xff12,0x5013,0x0014,0x0015,0x2a16,0xe317,0xff18,
+0x011a,0x221b,0x001d,
 0xffff
 };
 /* 1280x1024x8 */
@@ -230,6 +315,35 @@ unsigned short ccrtc_1600x1200x8[] = {
 0xffff
 };
 
+/* 320x200x16 */
+unsigned short cseq_320x200x16[] = {
+0x0300,0x0101,0x0f02,0x0003,0x0e04,
+0x0012,0x0013,0x2017,0x07e0e,0x331e,
+0x1707,
+0xffff
+};
+unsigned short ccrtc_320x200x16[] = {
+0x2911,0x2d00,0x2701,0x2702,0x9103,0x2a04,0x9005,0xbf06,0x1f07,
+0xc009,0x000c,0x000d,
+0x9e10,0x8f12,0x5013,0x0014,0x9715,0xb816,0xe317,0xff18,
+0x001a,0x221b,0x001d,
+0xffff
+};
+/* 320x200x24 */
+unsigned short cseq_320x200x24[] = {
+0x0300,0x0101,0x0f02,0x0003,0x0e04,
+0x0012,0x0013,0x2017,0x01d0e,0x161e,
+0x1507,
+0xffff
+};
+unsigned short ccrtc_320x200x24[] = {
+0x2911,0x2d00,0x2701,0x2702,0x9103,0x2a04,0x9005,0xbf06,0x1f07,
+0xc009,0x000c,0x000d,
+0x9c10,0x8f12,0x0013,0x0014,0x9715,0xb816,0xe317,0xff18,
+0x001a,0x321b,0x001d,
+0xffff
+};
+
 unsigned char cirrus_color_params_8bpp[] = {
 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned char cirrus_color_params_15bpp[] = {
@@ -238,6 +352,8 @@ unsigned char cirrus_color_params_16bpp[] = {
 5, 11, 6, 5, 5, 0, 0, 0};
 unsigned char cirrus_color_params_24bpp[] = {
 8, 16, 8, 8, 8, 0, 0, 0};
+unsigned char cirrus_color_params_32bpp[] = {
+8, 16, 8, 8, 8, 0, 8, 24};
 
 cirrus_mode_t cirrus_modes[] =
 {
@@ -254,6 +370,9 @@ cirrus_mode_t cirrus_modes[] =
    cseq_640x480x24,cgraph_svgacolor,ccrtc_640x480x24,24,
    6,cirrus_color_params_24bpp},
 
+ {0x58,800,600,4,0x00,
+   cseq_800x600x4,cgraph_vgacolor,ccrtc_800x600x4,4,
+   3,cirrus_color_params_8bpp},
  {0x5c,800,600,8,0x00,
    cseq_800x600x8,cgraph_svgacolor,ccrtc_800x600x8,8,
    4,cirrus_color_params_8bpp},
@@ -264,6 +383,9 @@ cirrus_mode_t cirrus_modes[] =
    cseq_800x600x16,cgraph_svgacolor,ccrtc_800x600x16,16,
    6,cirrus_color_params_15bpp},
 
+ {0x5d,1024,768,4,0x00,
+   cseq_1024x768x4,cgraph_vgacolor,ccrtc_1024x768x4,4,
+   3,cirrus_color_params_8bpp},
  {0x60,1024,768,8,0x00,
    cseq_1024x768x8,cgraph_svgacolor,ccrtc_1024x768x8,8,
    4,cirrus_color_params_8bpp},
@@ -281,6 +403,9 @@ cirrus_mode_t cirrus_modes[] =
    cseq_1024x768x24,cgraph_svgacolor,ccrtc_1024x768x24,24,
    6,cirrus_color_params_24bpp},
 
+ {0x6c,1280,1024,4,0x00,
+   cseq_1280x1024x4,cgraph_vgacolor,ccrtc_1280x1024x4,4,
+   3,cirrus_color_params_8bpp},
  {0x6d,1280,1024,8,0x00,
    cseq_1280x1024x8,cgraph_svgacolor,ccrtc_1280x1024x8,8,
    4,cirrus_color_params_8bpp},
@@ -294,6 +419,23 @@ cirrus_mode_t cirrus_modes[] =
  {0x7b,1600,1200,8,0x00,
    cseq_1600x1200x8,cgraph_svgacolor,ccrtc_1600x1200x8,8,
    4,cirrus_color_params_8bpp},
+ {0x7c,1152,864,8,0x4a,
+   cseq_1152x864x8,cgraph_svgacolor,ccrtc_1152x864x8,8,
+   4,cirrus_color_params_8bpp},
+
+ {0x6f,320,200,16,0xe1,
+   cseq_320x200x16,cgraph_svgacolor,ccrtc_320x200x16,16,
+   6,cirrus_color_params_16bpp},
+ {0x70,320,200,24,0xe5,
+   cseq_320x200x24,cgraph_svgacolor,ccrtc_320x200x24,24,
+   6,cirrus_color_params_24bpp},
+
+ {0x76,640,480,32,0xe5,
+   cseq_640x480x32,cgraph_svgacolor,ccrtc_640x480x32,32,
+   6,cirrus_color_params_32bpp},
+ {0x72,800,600,32,0xe5,
+   cseq_800x600x32,cgraph_svgacolor,ccrtc_800x600x32,32,
+   6,cirrus_color_params_32bpp},
 
  {0xfe,0,0,0,0,cseq_vga,cgraph_vga,ccrtc_vga,0,
    0xff,cirrus_color_params_8bpp},
@@ -320,6 +462,8 @@ unsigned short cirrus_vesa_modelist[] = {
   0x111, 0x64,
 // 640x480x24
   0x112, 0x71,
+// 800x600x4
+  0x102, 0x58,
 // 800x600x8
   0x103, 0x5c,
 // 800x600x15
@@ -328,6 +472,8 @@ unsigned short cirrus_vesa_modelist[] = {
   0x114, 0x65,
 // 800x600x24
   0x115, 0x78,
+// 1024x768x4
+  0x104, 0x5d,
 // 1024x768x8
   0x105, 0x60,
 // 1024x768x15
@@ -336,12 +482,20 @@ unsigned short cirrus_vesa_modelist[] = {
   0x117, 0x74,
 // 1024x768x24
   0x118, 0x79,
+// 1280x1024x4
+  0x106, 0x6c,
 // 1280x1024x8
   0x107, 0x6d,
 // 1280x1024x15
   0x119, 0x69,
 // 1280x1024x16
   0x11a, 0x75,
+// 1152x864x8
+  0x7c,  0x7c,
+// 320x200x16
+  0x10e,  0x6f,
+// 320x200x24
+  0x10f,  0x70,
 // invalid
   0xffff,0xffff
 };
@@ -377,7 +531,11 @@ cirrus_init:
   out dx, al
   inc dx
   in  al, dx
-  and al, #0x18
+  and  al, #0x98
+  test al, #0x80
+  jz   no_bankswitch
+  mov  al, #0x47
+no_bankswitch:
   mov ah, al
   mov al, #0x0a
   dec dx
@@ -404,17 +562,24 @@ no_cirrus:
 cirrus_display_info:
   push ds
   push si
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_selC000_data]
+#else
   push cs
+#endif
   pop ds
   call cirrus_check
   mov si, #cirrus_not_installed
   jnz cirrus_msgnotinstalled
   mov si, #cirrus_installed
-
+  mov  bl, #0x0b
+  db   0xa9 ;; skip next opcode (TEST AX, #0x0cb3)
 cirrus_msgnotinstalled:
-  call _display_string
-  pop si
-  pop ds
+  mov  bl, #0x0c
+  call display_string_color
+  pop  si
+  pop  ds
   ret
 
 cirrus_check:
@@ -463,24 +628,24 @@ cirrus_set_video_mode:
   push bx
   push ds
 #ifdef CIRRUS_VESA3_PMINFO
- db 0x2e ;; cs:
-  mov si, [cirrus_vesa_sel0000_data]
+  seg  cs
+  mov  si, [cirrus_vesa_sel0000_data]
 #else
-  xor si, si
+  xor  si, si
 #endif
-  mov ds, si
-  xor bx, bx
-  mov [PM_BIOSMEM_VBE_MODE], bx
-  pop ds
-  pop bx
+  mov  ds, si
+  xor  bx, bx
+  mov  [PM_BIOSMEM_VBE_MODE], bx
+  pop  ds
+  pop  bx
   call cirrus_get_modeentry
-  jnc cirrus_set_video_mode_extended
-  mov al, #0xfe
+  jnc  cirrus_set_video_mode_extended
+  mov  al, #0xfe
   call cirrus_get_modeentry_nomask
   call cirrus_switch_mode
-  pop ax
-  pop si
-  jmp cirrus_unhandled
+  pop  ax
+  pop  si
+  jmp  cirrus_unhandled
 
 cirrus_extbios:
   cmp bl, #0x80
@@ -493,7 +658,7 @@ cirrus_extbios:
   push bx
   and bx, #0x7F
   shl bx, 1
- db 0x2e ;; cs:
+  seg cs
   mov bp, cirrus_extbios_handlers[bx]
   pop bx
   push #cirrus_return
@@ -510,7 +675,7 @@ cirrus_vesa:
   xor bx, bx
   mov bl, al
   shl bx, 1
- db 0x2e ;; cs:
+  seg cs
   mov bp, cirrus_vesa_handlers[bx]
   pop bx
   push #cirrus_return
@@ -526,9 +691,14 @@ cirrus_call_debug_dump:
   push es
   push ds
   pusha
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_selC000_data]
+#else
   push cs
+#endif
   pop ds
-  call _cirrus_call_debugmsg
+  call _int10_call_debugmsg
   popa
   pop ds
   pop es
@@ -537,9 +707,14 @@ cirrus_ret_debug_dump:
   push es
   push ds
   pusha
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_selC000_data]
+#else
   push cs
+#endif
   pop ds
-  call _cirrus_ret_debugmsg
+  call _int10_ret_debugmsg
   popa
   pop ds
   pop es
@@ -548,26 +723,28 @@ cirrus_ret_debug_dump:
 
 cirrus_set_video_mode_extended:
   call cirrus_switch_mode
-  pop ax ;; mode
+  pop  ax ;; mode
   test al, #0x80
-  jnz cirrus_set_video_mode_extended_1
-  push ax
-  mov ax, #0xffff ; set to 0xff to keep win 2K happy
+  jnz  cirrus_set_video_mode_extended_1
   call cirrus_clear_vram
-  pop ax
 cirrus_set_video_mode_extended_1:
-  and al, #0x7f
+  and  al, #0x7f
   call cirrus_set_video_mode_bda
   SET_INT_VECTOR(0x43, #0xC000, #_vgafont16)
-  mov al, #0x20
-  pop si
-  jmp cirrus_return
+  mov  ax, #0x20
+  pop  si
+  jmp  cirrus_return
 
 cirrus_set_video_mode_bda:
   push bx
   push cx
   push ds
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_selC000_data]
+#else
   push cs
+#endif
   pop ds
   mov bx, [si+2]
   shr bx, #3
@@ -575,7 +752,7 @@ cirrus_set_video_mode_bda:
   shr cx, #4 ; cheight 16
   dec cx
 #ifdef CIRRUS_VESA3_PMINFO
- db 0x2e ;; cs:
+  seg cs
   mov si, [cirrus_vesa_sel0000_data]
 #else
   xor si, si
@@ -594,6 +771,133 @@ cirrus_set_video_mode_bda:
   pop bx
   ret
 
+  .align 2
+cirrus_vesa_pm_start:
+  dw cirrus_vesa_pm_set_window - cirrus_vesa_pm_start
+  dw cirrus_vesa_pm_set_display_start - cirrus_vesa_pm_start
+  dw cirrus_vesa_pm_set_palette_data - cirrus_vesa_pm_start
+  dw 0x0000
+
+  USE32
+cirrus_vesa_pm_set_window:
+  or   bx, bx
+  jnz  cirrus_vesa_pm_get_window
+  cmp dl, #0x40 ;; address must be < 0x40
+  jnc cirrus_vesa_pm_get_window
+  mov al, bl ;; bl=bank number
+  add al, #0x09
+  mov ah, dl ;; dx=window address in granularity
+  shl ah, #2
+  mov dx, #0x3ce
+  out dx, ax
+cirrus_vesa_pm_get_window:
+  mov al, bl ;; bl=bank number
+  add al, #0x09
+  mov dx, #0x3ce
+  out dx, al
+  inc dx
+  in  al, dx
+  shr al, #2
+  xor ah, ah
+  mov dx, ax
+  ret
+
+cirrus_vesa_pm_set_display_start:
+  cmp  bl, #0x80
+  je   cirrus_vesa_pm_set_display_start1
+  cmp  bl, #0x00
+  je   cirrus_vesa_pm_set_display_start2
+  mov  ax, #0x0100
+  ret
+cirrus_vesa_pm_set_display_start1:
+  push dx
+  mov  dx, #VGAREG_ACTL_RESET
+cirrus_vesa_pm_wait_1:
+  in   al, dx
+  test al, #0x08
+  jz   cirrus_vesa_pm_wait_1
+  pop  dx
+cirrus_vesa_pm_set_display_start2:
+  push bx
+  push dx
+  push cx
+  mov  dx, #VGAREG_VGA_CRTC_ADDRESS
+  mov  al, #0x0d
+  out  dx, al
+  inc  dx
+  pop  ax
+  out  dx, al
+  dec  dx
+  mov  al, #0x0c
+  out  dx, ax
+  mov  al, #0x1d
+  out  dx, al
+  inc  dx
+  in   al, dx
+  and  al, #0x7f
+  pop  bx
+  mov  ah, bl
+  shl  bl, #4
+  and  bl, #0x80
+  or   al, bl
+  out  dx, al
+  dec  dx
+  mov  bl, ah
+  and  ah, #0x01
+  shl  bl, #1
+  and  bl, #0x0c
+  or   ah, bl
+  mov  al, #0x1b
+  out  dx, al
+  inc  dx
+  in   al, dx
+  and  al, #0xf2
+  or   al, ah
+  out  dx, al
+  pop  bx
+  mov  ax, #0x004f
+  ret
+
+cirrus_vesa_pm_set_palette_data:
+  cmp  bl, #0x80
+  jne  cirrus_vesa_pm_no_wait
+  push dx
+  mov  dx, #VGAREG_ACTL_RESET
+cirrus_vesa_pm_wait_2:
+  in   al, dx
+  test al, #0x08
+  jz   cirrus_vesa_pm_wait_2
+  pop  dx
+cirrus_vesa_pm_no_wait:
+  push  ecx
+  push  edx
+  push  edi
+  mov   al, dl
+  mov   dx, # VGAREG_DAC_WRITE_ADDRESS
+  out   dx, al
+  mov   dx, # VGAREG_DAC_DATA
+  cld
+cirrus_vesa_pm_set_dac_loop:
+  seg   es
+  mov   al, [edi+2]
+  out   dx, al
+  seg   es
+  mov   al, [edi+1]
+  out   dx, al
+  seg   es
+  mov   al, [edi]
+  out   dx, al
+  add   edi, #4
+  loop  cirrus_vesa_pm_set_dac_loop
+  pop   edi
+  pop   edx
+  pop   ecx
+  mov   ax, #0x004f
+  ret
+  USE16
+cirrus_vesa_pm_end:
+
+#ifdef CIRRUS_VESA3_PMINFO
 cirrus_vesa_pmbios_init:
   retf
 cirrus_vesa_pmbios_entry:
@@ -607,7 +911,7 @@ cirrus_vesa_pmbios_entry:
   xor bx, bx
   mov bl, al
   shl bx, 1
- db 0x2e ;; cs:
+  seg cs
   mov bp, cirrus_vesa_handlers[bx]
   pop bx
   push #cirrus_vesa_pmbios_return
@@ -619,13 +923,19 @@ cirrus_vesa_pmbios_return:
   pop bp
   popf
   retf
+#endif
 
 ; in si:mode table
 cirrus_switch_mode:
   push ds
   push bx
   push dx
+#ifdef CIRRUS_VESA3_PMINFO
+  seg  cs
+  push [cirrus_vesa_selC000_data]
+#else
   push cs
+#endif
   pop ds
 
   call cirrus_set_vga_vclk
@@ -643,6 +953,12 @@ cirrus_switch_mode:
   mov bx, [si+14] ;; crtc
   call get_crtc_address
   call cirrus_switch_mode_setregs
+  mov  al, #0x11
+  out  dx, al
+  inc  dx
+  in   al, dx
+  or   al, #0x80
+  out  dx, al ;; lock CRTC regs 0 - 7
 
   mov  bx, [si+2]
   or   bx, bx
@@ -652,6 +968,7 @@ cirrus_switch_mode:
   and  al, #0xf3
   cmp  bx, #0x280
   jbe  set_vclk_sel
+  and  al, #0x33
   or   al, #0x0c
 set_vclk_sel:
   mov  dx, #VGAREG_WRITE_MISC_OUTPUT
@@ -670,30 +987,36 @@ no_vclk_setup:
   mov al, #0xff
   out dx, al
 
-  mov al, #0x00
-  mov bl, [si+17]  ;; memory model
-  or  bl, bl
-  jz is_text_mode
-  mov al, #0x01
-  cmp bl, #0x03
-  jnz is_text_mode
-  or al, #0x40
+  mov  al, #0x00
+  mov  ah, #0xbe
+  mov  bl, [si+17]  ;; memory model
+  or   bl, bl
+  jz   is_text_mode
+  mov  al, #0x01
+  mov  ah, #0xb2
+  cmp  bl, #0x03
+  jz   is_text_mode
+  or   al, #0x40
 is_text_mode:
-  mov bl, #0x10
+  mov  bl, #0x10 ;; mode control
   call biosfn_get_single_palette_reg
-  and bh, #0xfe
-  or bh, al
+  and  bh, ah
+  or   bh, al
+  call biosfn_set_single_palette_reg
+  and  bh, #0x01
+  xor  bh, #0x01
+  shl  bh, #3
+  mov  bl, #0x13 ;; horiz. pel panning
   call biosfn_set_single_palette_reg
 
-  mov al, [si+6]  ;; bpp
-  cmp al, #0x08
-  jnz no_8bpp_mode
-  mov al, #0x03
-  xor ah,ah
-  push ax
-  call _load_dac_palette
-  inc sp
-  inc sp
+  cmp  [si+6], #0x08  ;; bpp
+  ja   no_8bpp_mode
+  mov  al, #0x03
+  cmp  [si+6], #0x04
+  ja   palette_ok
+  dec  al
+palette_ok:
+  call load_dac_palette
 no_8bpp_mode:
 
   pop dx
@@ -710,6 +1033,20 @@ cirrus_enable_16k_granularity:
   inc dx
   in al, dx
   or al, #0x20 ;; enable 16k
+  out dx, al
+  pop dx
+  pop ax
+  ret
+
+cirrus_disable_16k_granularity:
+  push ax
+  push dx
+  mov dx, #0x3ce
+  mov al, #0x0b
+  out dx, al
+  inc dx
+  in  al, dx
+  and al, #0xdf ;; disable 16k
   out dx, al
   pop dx
   pop ax
@@ -762,7 +1099,7 @@ cirrus_pm_get_bda_word:
   push bx
   push si
 #ifdef CIRRUS_VESA3_PMINFO
- db 0x2e ;; cs:
+  seg  cs
   mov  si, [cirrus_vesa_sel0000_data]
 #else
   xor  si, si
@@ -969,7 +1306,7 @@ cirrus_extbios_80h:
   in al, dx
   mov bx, #_cirrus_id_table
 c80h_1:
- db 0x2e ;; cs:
+  seg  cs
   mov ah, [bx]
   cmp ah, al
   jz c80h_2
@@ -979,7 +1316,7 @@ c80h_1:
   inc bx
   jmp c80h_1
 c80h_2:
- db 0x2e ;; cs:
+  seg cs
   mov al, 0x1[bx]
   pop dx
   mov ah, #0x00
@@ -1042,8 +1379,17 @@ cirrus_extbios_A0h:
   mov bx, cirrus_extbios_A0h_callback
   mov si, #0xffff
   mov di, bx
+  // modified from the original, it was setting ds and es to bx without initializing bx.
+  push bx
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  mov bx, [cirrus_vesa_selC000_data]
+#else
+  mov bx, cs
+#endif
   mov ds, bx
   mov es, bx
+  pop bx
   ret
 
 cirrus_extbios_A0h_callback:
@@ -1070,78 +1416,132 @@ cirrus_extbios_unimplemented:
 cirrus_vesa_00h:
   push ds
   push si
-  mov bp, di
+  push bx
+  mov  bp, di
   push es
-  pop ds
+  pop  ds
+  xor  bx, bx
   cld
-  mov ax, [di]
-  cmp ax, #0x4256 ;; VB
-  jnz cv00_1
-  mov ax, [di+2]
-  cmp ax, #0x3245 ;; E2
-  jnz cv00_1
+  mov  ax, [di]
+  cmp  ax, #0x4256 ;; VB
+  jnz  cv00_1
+  mov  ax, [di+2]
+  cmp  ax, #0x3245 ;; E2
+  jnz  cv00_1
   ;; VBE2
-  lea di, 0x14[bp]
-  mov ax, #0x0100 ;; soft ver.
+  lea  di, 0x100[bp]
+  mov  bx, di
+  mov  si, #cirrus_vesa_oemname
+  call strcpy
+  add  bx, ax
+  mov  ax, di
+  lea  di, 0x06[bp]
   stosw
-  mov ax, # cirrus_vesa_vendorname
+  mov  ax, es
   stosw
-  mov ax, cs
+  lea  di, 0x14[bp]
+  mov  ax, #0x0100 ;; soft ver.
   stosw
-  mov ax, # cirrus_vesa_productname
+  push di
+  mov  si, #cirrus_vesa_vendorname
+  mov  di, bx
+  call strcpy
+  add  bx, ax
+  mov  ax, di
+  pop  di
   stosw
-  mov ax, cs
+  mov  ax, es
   stosw
-  mov ax, # cirrus_vesa_productrevision
+  push di
+  mov  si, #cirrus_vesa_productname
+  mov  di, bx
+  call strcpy
+  add  bx, ax
+  mov  ax, di
+  pop  di
   stosw
-  mov ax, cs
+  mov  ax, es
+  stosw
+  push di
+  mov  si, #cirrus_vesa_productrevision
+  mov  di, bx
+  call strcpy
+  mov  ax, di
+  pop  di
+  stosw
+  mov  ax, es
   stosw
 cv00_1:
-  mov di, bp
-  mov ax, #0x4556 ;; VE
+  mov  di, bp
+  mov  ax, #0x4556 ;; VE
   stosw
-  mov ax, #0x4153 ;; SA
+  mov  ax, #0x4153 ;; SA
   stosw
-  mov ax, #0x0200 ;; v2.00
+  mov  ax, #0x0200 ;; v2.00
   stosw
-  mov ax, # cirrus_vesa_oemname
+  or   bx, bx
+  jnz  cv00_2 ; already set for VBE 2.0
+  mov  ax, #cirrus_vesa_oemname
   stosw
-  mov ax, cs
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  mov  ax, [cirrus_vesa_selC000_data]
+#else
+  mov  ax, cs
+#endif
   stosw
-  xor ax, ax ;; caps
+  jz   cv00_3
+cv00_2:
+  add  di, #4
+cv00_3:
+  xor  ax, ax ;; caps
   stosw
   stosw
-  lea ax, 0x40[bp]
+  lea  ax, 0x22[bp]
   stosw
-  mov ax, es
+  mov  ax, es
   stosw
   call cirrus_extbios_85h ;; vram in 64k
-  mov ah, #0x00
+  mov  ah, #0x00
   stosw
 
-  push cs
-  pop ds
-  lea di, 0x40[bp]
-  mov si, #_cirrus_vesa_modelist
-cv00_2:
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_selC000_data] ; build mode list
+#else
+  push cs ; build mode list
+#endif
+  pop  ds
+  lea  di, 0x22[bp]
+  mov  si, #_cirrus_vesa_modelist
+cv00_4:
   lodsw
   stosw
-  add si, #2
-  cmp ax, #0xffff
-  jnz cv00_2
+  add  si, #2
+  cmp  ax, #0xffff
+  jnz  cv00_4
 
-  mov ax, #0x004F
-  mov di, bp
-  pop si
-  pop ds
+  mov  ax, #0x004F ; no error
+  mov  di, bp
+  pop  bx
+  pop  si
+  pop  ds
   ret
 
 cirrus_vesa_01h:
   mov ax, cx
   and ax, #0x3fff
+  cmp ax, #0x0080
+  jb  cirrus_no_vesamode
   call cirrus_vesamode_to_mode
   cmp ax, #0xffff
   jnz cirrus_vesa_01h_1
+  jmp cirrus_vesa_unimplemented
+cirrus_no_vesamode:
+  push si
+  call cirrus_get_modeentry_nomask
+  pop  si
+  jnc cirrus_vesa_01h_1
   jmp cirrus_vesa_unimplemented
 cirrus_vesa_01h_1:
   push ds
@@ -1151,7 +1551,12 @@ cirrus_vesa_01h_1:
   push bx
   mov bp, di
   cld
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_selC000_data]
+#else
   push cs
+#endif
   pop ds
   call cirrus_get_modeentry_nomask
 
@@ -1162,18 +1567,18 @@ cirrus_vesa_01h_1:
     stosw ;; clear buffer
   pop di
 
-  mov  ax, #0x003b ;; mode attr
+  mov  ax, #0x001b ;; mode attr
   push bx
   mov  bl, [si+6] ;; bpp
   cmp  bl, #0x08
-  jne  cirrus_vesa_no_8bpp
+  ja   cirrus_vesa_01h_2
   or   al, #0x04 ;; TTY support
-cirrus_vesa_no_8bpp:
+cirrus_vesa_01h_2:
   pop  bx
   stosw
   mov ax, #0x0007 ;; win attr
   stosw
-  mov ax, #0x0010 ;; granularity =16K
+  mov ax, #0x0040 ;; granularity =64K
   stosw
   mov ax, #0x0040 ;; size =64K
   stosw
@@ -1196,6 +1601,10 @@ cirrus_vesa_no_8bpp:
   mov ax, #0x10
   stosb
   mov al, #1 ;; count of planes
+  cmp byte ptr [si+17], #0x03
+  jne cirrus_vesa_01h_3
+  mov al, #4
+cirrus_vesa_01h_3:
   stosb
   mov al, [si+6] ;; bpp
   stosb
@@ -1209,17 +1618,21 @@ cirrus_vesa_no_8bpp:
   mov bx, [si+4]
   mul bx ;; dx:ax=vramdisp
   or ax, ax
-  jz cirrus_vesa_01h_3
+  jz cirrus_vesa_01h_4
   inc dx
-cirrus_vesa_01h_3:
+cirrus_vesa_01h_4:
+  mov al, #0x04
+  cmp byte ptr [si+17], #0x03
+  je  cirrus_vesa_01h_5
   call cirrus_extbios_85h ;; al=vram in 64k
-  mov ah, #0x00
+cirrus_vesa_01h_5:
+  xor ah, ah
   mov cx, dx
   xor dx, dx
   div cx
   dec ax
   stosb  ;; number of image pages = vramtotal/vramdisp-1
-  mov al, #0x00
+  mov al, #0x01
   stosb
 
   ;; v1.2+ stuffs
@@ -1242,19 +1655,22 @@ cirrus_vesa_01h_3:
   ;; 32-bit LFB address
   xor ax, ax
   stosw
+  cmp byte ptr [si+17], #0x03
+  je  cirrus_vesa_01h_6
   mov ax, #0x1013 ;; vendor Cirrus
-  call _pci_get_lfb_addr
+  call pci_get_lfb_addr
+cirrus_vesa_01h_6:
   stosw
   or ax, ax
-  jz cirrus_vesa_01h_4
+  jz cirrus_vesa_01h_7
   push di
   mov di, bp
- db 0x26 ;; es:
+  seg es
   mov ax, [di]
   or ax, #0x0080 ;; mode bit 7:LFB
   stosw
   pop di
-cirrus_vesa_01h_4:
+cirrus_vesa_01h_7:
 
   xor ax, ax
   stosw ; reserved
@@ -1270,16 +1686,16 @@ cirrus_vesa_01h_4:
   pop ds
 
   test cx, #0x4000 ;; LFB flag
-  jz   cirrus_vesa_01h_5
+  jz   cirrus_vesa_01h_9
   push cx
- db 0x26 ;; es:
+  seg es
   mov  cx, [di]
   test cx, #0x0080 ;; is LFB supported?
-  jnz  cirrus_vesa_01h_6
+  jnz  cirrus_vesa_01h_8
   mov  ax, #0x014F ;; error - no LFB
-cirrus_vesa_01h_6:
+cirrus_vesa_01h_8:
   pop  cx
-cirrus_vesa_01h_5:
+cirrus_vesa_01h_9:
   ret
 
 cirrus_vesa_02h:
@@ -1302,7 +1718,7 @@ cirrus_vesa_02h_legacy:
   or   al, #0x80
 cirrus_vesa_02h_legacy_noclear:
 #ifdef CIRRUS_VESA3_PMINFO
- db 0x2e ;; cs:
+  seg  cs
   cmp  byte ptr [cirrus_vesa_is_protected_mode], #0
   jnz  cirrus_vesa_02h_2
 #endif // CIRRUS_VESA3_PMINFO
@@ -1314,21 +1730,20 @@ cirrus_vesa_02h_1:
   push ax
   call cirrus_get_modeentry_nomask
   call cirrus_switch_mode
-  test bx, #0x4000 ;; LFB
-  jnz cirrus_vesa_02h_3
-  call cirrus_enable_16k_granularity
-cirrus_vesa_02h_3:
   test bx, #0x8000 ;; no clear
-  jnz cirrus_vesa_02h_4
-  xor ax, ax
+  jnz cirrus_vesa_02h_3
   call cirrus_clear_vram
+cirrus_vesa_02h_3:
+  test bx, #0x4000 ;; LFB
+  jnz cirrus_vesa_02h_4
+  call cirrus_enable_16k_granularity
 cirrus_vesa_02h_4:
   pop ax
   call cirrus_set_video_mode_bda
   SET_INT_VECTOR(0x43, #0xC000, #_vgafont16)
   push ds
 #ifdef CIRRUS_VESA3_PMINFO
- db 0x2e ;; cs:
+  seg cs
   mov si, [cirrus_vesa_sel0000_data]
 #else
   xor si, si
@@ -1343,7 +1758,7 @@ cirrus_vesa_02h_4:
 cirrus_vesa_03h:
   push ds
 #ifdef CIRRUS_VESA3_PMINFO
- db 0x2e ;; cs:
+  seg cs
   mov ax, [cirrus_vesa_sel0000_data]
 #else
   xor ax, ax
@@ -1377,12 +1792,13 @@ cirrus_vesa_05h:
 cirrus_vesa_05h_1:
   jmp cirrus_vesa_unimplemented
 cirrus_vesa_05h_setmempage:
-  or dh, dh ; address must be < 0x100
-  jnz cirrus_vesa_05h_1
+  cmp dx, #0x40 ;; address must be < 0x40
+  jnc cirrus_vesa_05h_1
   push dx
   mov al, bl ;; bl=bank number
   add al, #0x09
   mov ah, dl ;; dx=window address in granularity
+  shl ah, #2
   mov dx, #0x3ce
   out dx, ax
   pop dx
@@ -1395,6 +1811,7 @@ cirrus_vesa_05h_getmempage:
   out dx, al
   inc dx
   in al, dx
+  shr al, #2
   xor dx, dx
   mov dl, al ;; dx=window address in granularity
   mov ax, #0x004F
@@ -1403,33 +1820,55 @@ cirrus_vesa_05h_getmempage:
 cirrus_vesa_06h:
   mov  ax, cx
   cmp  bl, #0x01
-  je   cirrus_vesa_06h_3
+  je   cirrus_vesa_06h_bl1
   cmp  bl, #0x02
-  je   cirrus_vesa_06h_2
-  jb   cirrus_vesa_06h_1
+  je   cirrus_vesa_06h_bl2
+  jb   cirrus_vesa_06h_bl0
   mov  ax, #0x0100
   ret
-cirrus_vesa_06h_1:
+cirrus_vesa_06h_bl0:
   call cirrus_get_bpp_bytes
+  jnc  cirrus_vesa_06h_bl0_4bpp
   mov  bl, al
   xor  bh, bh
   mov  ax, cx
   mul  bx
-cirrus_vesa_06h_2:
-  call cirrus_set_line_offset
-cirrus_vesa_06h_3:
-  call cirrus_get_bpp_bytes
-  mov  bl, al
-  xor  bh, bh
-  xor  dx, dx
-  call cirrus_get_line_offset
-  push ax
+  jmp  cirrus_vesa_06h_bl2
+cirrus_vesa_06h_bl0_4bpp:
+  call cirrus_get_scanlines
+  mov  bx, ax
+  mov  dx, #0x04
+  xor  ax, ax
   div  bx
-  mov  cx, ax
-  pop  bx
-  call cirrus_extbios_85h ;; al=vram in 64k
+  shl  ax, #3
+  mov  bx, ax
+  mov  ax, cx
+  cmp  ax, bx
+  jbe  cirrus_vesa_06h_bl0_4bpp_1
+  mov  ax, bx
+cirrus_vesa_06h_bl0_4bpp_1:
+  shr  ax, #3
+cirrus_vesa_06h_bl2:
+  call cirrus_set_line_offset
+cirrus_vesa_06h_bl1:
+  call cirrus_get_line_offset
+  mov  bx, ax
+  call cirrus_get_bpp_bytes
+  jnc  cirrus_vesa_06h_bl1_4bpp
+  mov  cl, al
+  xor  ch, ch
+  mov  ax, bx
   xor  dx, dx
+  div  cx
+  mov  cx, ax
+  jmp  cirrus_vesa_06h_bl1_1
+cirrus_vesa_06h_bl1_4bpp:
+  mov  cx, bx
+  shl  cx, #3
+cirrus_vesa_06h_bl1_1:
+  call cirrus_get_vram_avail ;; al=vram in 64k
   mov  dl, al
+  xor  dh, dh
   xor  ax, ax
   div  bx
   mov  dx, ax
@@ -1438,45 +1877,70 @@ cirrus_vesa_06h_3:
 
 cirrus_vesa_07h:
   cmp  bl, #0x80
-  je   cirrus_vesa_07h_1
+  je   cirrus_vesa_07h_bl80
   cmp  bl, #0x01
-  je   cirrus_vesa_07h_2
-  jb   cirrus_vesa_07h_1
+  je   cirrus_vesa_07h_bl1
+  jb   cirrus_vesa_07h_bl0
   mov  ax, #0x0100
   ret
-cirrus_vesa_07h_1:
+cirrus_vesa_07h_bl80:
+  call vbebios_vsync_wait
+cirrus_vesa_07h_bl0:
+  push bx
   push dx
   call cirrus_get_bpp_bytes
+  jnc  cirrus_vesa_07h_bl0_4bpp
+  cmp  al, #3
+  jne  no_24bpp
+  and  cx, #0xfffc ;; special case for 24 bpp
+no_24bpp:
   mov  bl, al
   xor  bh, bh
   mov  ax, cx
   mul  bx
+  mov  cx, ax
   pop  bx
-  push ax
+  push bx
   call cirrus_get_line_offset
   mul  bx
-  pop  bx
-  add  ax, bx
+  add  ax, cx
   jnc  cirrus_vesa_07h_3
   inc  dx
 cirrus_vesa_07h_3:
-  push dx
-  and  dx, #0x0003
-  mov  bx, #0x04
-  div  bx
-  pop  dx
-  shr  dx, #2
+  shr  dx, #1
+  rcr  ax, #1
+  shr  dx, #1
+  rcr  ax, #1
+  jmp  cirrus_vesa_07h_bl0_set
+cirrus_vesa_07h_bl0_4bpp:
+  mov  bh, cl
+  and  bh, #0x07
+  mov  bl, #0x13 ;; horiz. pel panning
+  call biosfn_set_single_palette_reg
+  push cx
+  shr  cx, #3
+  call cirrus_get_line_offset
+  mov  bx, dx
+  mul  bx
+  add  ax, cx
+  pop  cx
+  jnc  cirrus_vesa_07h_bl0_set
+  inc  dx
+cirrus_vesa_07h_bl0_set:
   call cirrus_set_start_addr
+  pop  dx
+  pop  bx
   mov  ax, #0x004f
   ret
-cirrus_vesa_07h_2:
+cirrus_vesa_07h_bl1:
   call cirrus_get_start_addr
-  shl  dx, #2
-  push dx
-  mov  bx, #0x04
-  mul  bx
-  pop  bx
-  or   dx, bx
+  call stdvga_is_4bpp_mode
+  jc   cirrus_vesa_07h_bl1_4bpp_1
+  shl  ax, #1
+  rcl  dx, #1
+  shl  ax, #1
+  rcl  dx, #1
+cirrus_vesa_07h_bl1_4bpp_1:
   push ax
   call cirrus_get_line_offset
   mov  bx, ax
@@ -1485,6 +1949,7 @@ cirrus_vesa_07h_2:
   push ax
   push dx
   call cirrus_get_bpp_bytes
+  jnc  cirrus_vesa_07h_bl1_4bpp_2
   mov  bl, al
   xor  bh, bh
   pop  ax
@@ -1493,6 +1958,35 @@ cirrus_vesa_07h_2:
   mov  cx, ax
   pop  dx
   mov  ax, #0x004f
+  ret
+cirrus_vesa_07h_bl1_4bpp_2:
+  pop  cx
+  shl  cx, #3
+  mov  bl, #0x13 ;; horiz. pel panning
+  call biosfn_get_single_palette_reg
+  and  bh, #0x07
+  or   cl, bh
+  pop  dx
+  mov  ax, #0x004f
+  ret
+
+cirrus_vesa_0ah:
+  test bl, bl
+  jnz cirrus_vesa_0ah_fail
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  mov di, [cirrus_vesa_selC000_data]
+#else
+  mov di, #0xc000
+#endif
+  mov es, di
+  mov di, # cirrus_vesa_pm_start
+  mov cx, # cirrus_vesa_pm_end
+  sub cx, di
+  mov ax, #0x004f
+  ret
+cirrus_vesa_0ah_fail:
+  mov ax, #0x014f
   ret
 
 cirrus_vesa_10h:
@@ -1506,9 +2000,16 @@ cirrus_vesa_10h_01:
   jne cirrus_vesa_10h_02
   push dx
   push ds
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_sel0000_data]
+  pop ds
+  mov [0x4b9], bh
+#else
   mov dx, #0x40
   mov ds, dx
   mov [0xb9], bh
+#endif
   pop ds
   pop dx
   mov ax, #0x004f
@@ -1518,9 +2019,16 @@ cirrus_vesa_10h_02:
   jne cirrus_vesa_unimplemented
   push dx
   push ds
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_sel0000_data]
+  pop ds
+  mov bh, [0x4b9]
+#else
   mov dx, #0x40
   mov ds, dx
   mov bh, [0xb9]
+#endif
   pop ds
   pop dx
   mov ax, #0x004f
@@ -1685,22 +2193,25 @@ cirrus_vesa_get_capabilities:
   ret
 
 cirrus_vesa_read_EDID:
+  mov  dx, #0x03c4
+  in   al, dx
+  push ax
   call cirrus_ddc_init
-  jnz  cirrus_vesa_unimplemented
+  jnz  cirrus_vesa_no_ddc
   call cirrus_ddc_start
   call cirrus_ddc_delay
   mov  al, #0xa0
   call cirrus_ddc_send_byte
-  jc   cirrus_vesa_unimplemented
+  jc   cirrus_vesa_no_ddc
   mov  al, #0x00
   call cirrus_ddc_send_byte
-  jc   cirrus_vesa_unimplemented
+  jc   cirrus_vesa_no_ddc
   call cirrus_ddc_stop
   call cirrus_ddc_start
   call cirrus_ddc_delay
   mov  al, #0xa1
   call cirrus_ddc_send_byte
-  jc   cirrus_vesa_unimplemented
+  jc   cirrus_vesa_no_ddc
   push cx
   push di
   mov  cx, #0x0080
@@ -1713,9 +2224,16 @@ cirrus_vesa_15h_01:
   call cirrus_ddc_stop
   pop  di
   pop  cx
+  mov  dx, #0x03c4
+  pop  ax
+  out  dx, al
   mov  ax, #0x004f
   ret
 
+cirrus_vesa_no_ddc:
+  mov  dx, #0x03c4
+  pop  ax
+  out  dx, al
 cirrus_vesa_unimplemented:
   mov  ax, #0x014F ;; not implemented
   ret
@@ -1726,7 +2244,12 @@ cirrus_vesamode_to_mode:
   push ds
   push cx
   push si
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  push [cirrus_vesa_selC000_data]
+#else
   push cs
+#endif
   pop ds
   mov cx, #0xffff
   mov si, #_cirrus_vesa_modelist
@@ -1750,7 +2273,7 @@ cirrus_get_modeentry:
 cirrus_get_modeentry_nomask:
   mov si, #_cirrus_modes
 cgm_1:
- db 0x2e ;; cs:
+  seg cs
   mov ah, [si]
   cmp al, ah
   jz cgm_2
@@ -1767,6 +2290,15 @@ cgm_2:
 cgm_3:
   ret
 
+;; out - al:available vram in 64k
+cirrus_get_vram_avail:
+  call stdvga_is_4bpp_mode
+  jc   limit_4bpp_vram
+  jmp  cirrus_extbios_85h
+limit_4bpp_vram:
+  mov  al, #0x04
+  ret
+
 ;; out - al:bytes per pixel
 cirrus_get_bpp_bytes:
   push dx
@@ -1775,6 +2307,9 @@ cirrus_get_bpp_bytes:
   out  dx, al
   inc  dx
   in   al, dx
+  pop  dx
+  test al, #0x01
+  jz   no_svga_modes
   and  al, #0x0e
   cmp  al, #0x06
   jne  cirrus_get_bpp_bytes_1
@@ -1785,12 +2320,23 @@ cirrus_get_bpp_bytes_1:
   je  cirrus_get_bpp_bytes_2
   inc  al
 cirrus_get_bpp_bytes_2:
-  pop  dx
+  stc
+  ret
+no_svga_modes:
+  clc
   ret
 
 ;; in - ax: new line offset
 cirrus_set_line_offset:
-  shr  ax, #3
+  shr  ax, #1
+  call stdvga_is_4bpp_mode
+  jc   set_line_offset_4bpp
+  shr  ax, #2
+set_line_offset_4bpp:
+  cmp  ax, #0x200
+  jb   cirrus_offset_ok
+  mov  ax, #0x1ff
+cirrus_offset_ok:
   push ax
   call get_crtc_address
   mov  al, #0x13
@@ -1828,7 +2374,11 @@ cirrus_get_line_offset:
   shr  ah, #4
   and  ah, #0x01
   mov  al, bl
-  shl  ax, #3
+  shl  ax, #1
+  call stdvga_is_4bpp_mode
+  jc   get_line_offset_4bpp
+  shl  ax, #2
+get_line_offset_4bpp:
   pop  bx
   pop  dx
   ret
@@ -1864,6 +2414,10 @@ offset_found2:
   shr  ax, #1
   or   ax, bx
   pop  bx
+  cmp byte ptr [si+17], #0x03
+  jne offset_normal
+  shr ax, #2
+offset_normal:
   ret
 
 ;; in - new address in DX:AX
@@ -1951,9 +2505,28 @@ cirrus_get_start_addr:
   ret
 
 cirrus_clear_vram:
+  seg  cs
+  cmp  [si+6], #0x04 ;; bpp
+  ja   clear_vram_linear
+  push ax
+  push dx
+  mov  dx, #0x03ce
+  mov  ax, #0x0009
+vga_clear_loop:
+  out  dx, ax
+  call _vga_clear_vram_pl4
+  add  ah, #0x10
+  cmp  ah, #0x40
+  jb   vga_clear_loop
+  xor  ah, ah
+  out  dx, ax
+  pop  dx
+  pop  ax
+  ret
+
+clear_vram_linear:
   pusha
   push es
-  mov si, ax
 
   call cirrus_enable_16k_granularity
   call cirrus_extbios_85h
@@ -1965,13 +2538,18 @@ cirrus_clear_vram_1:
   mov dx, #0x3ce
   out dx, ax
   push ax
+#ifdef CIRRUS_VESA3_PMINFO
+  seg cs
+  mov cx, [cirrus_vesa_selA000_data]
+#else
   mov cx, #0xa000
+#endif
   mov es, cx
   xor di, di
-  mov ax, si
+  xor ax, ax
   mov cx, #8192
   cld
-  rep 
+  rep
       stosw
   pop ax
   inc ah
@@ -1981,9 +2559,27 @@ cirrus_clear_vram_1:
   xor ah,ah
   mov dx, #0x3ce
   out dx, ax
+  call cirrus_disable_16k_granularity
 
   pop es
   popa
+  ret
+
+cirrus_get_scanlines:
+  call stdvga_get_scanlines
+  push ax
+  push dx
+  call get_crtc_address
+  mov  al, #0x1a
+  out  dx, al
+  inc  dx
+  in   al, dx
+  test al, #0x01
+  pop  dx
+  pop  ax
+  jz   no_interlace
+  shl  ax, #1
+no_interlace:
   ret
 
 cirrus_extbios_handlers:
@@ -2061,8 +2657,8 @@ cirrus_vesa_handlers:
   dw cirrus_vesa_07h
   ;; 08h
   dw cirrus_vesa_unimplemented
-  dw cirrus_vesa_unimplemented
-  dw cirrus_vesa_unimplemented
+  dw vbe_biosfn_set_get_palette_data
+  dw cirrus_vesa_0ah
   dw cirrus_vesa_unimplemented
   ;; 0Ch
   dw cirrus_vesa_unimplemented
@@ -2083,6 +2679,7 @@ ASM_END
 
 #ifdef CIRRUS_VESA3_PMINFO
 ASM_START
+.align 4 /* ensure 'PMID' can be read as a word. */
 cirrus_vesa_pminfo:
   /* + 0 */
   .byte 0x50,0x4d,0x49,0x44 ;; signature[4]
@@ -2108,18 +2705,3 @@ cirrus_vesa_is_protected_mode:
      + (cirrus_vesa_pmbios_init >> 8) + (cirrus_vesa_pmbios_init)) & 0xff) << 8) + 0x01
 ASM_END
 #endif // CIRRUS_VESA3_PMINFO
-
-
-#ifdef CIRRUS_DEBUG
-static void cirrus_call_debugmsg(DI, SI, BP, SP, BX, DX, CX, AX, DS, ES, FLAGS)
-  Bit16u DI, SI, BP, SP, BX, DX, CX, AX, ES, DS, FLAGS;
-{
-  printf("vgabios cirrus call ah%02x al%02x bx%04x cx%04x dx%04x\n",GET_AH(),GET_AL(),BX,CX,DX);
-}
-
-static void cirrus_ret_debugmsg(DI, SI, BP, SP, BX, DX, CX, AX, DS, ES, FLAGS)
-  Bit16u DI, SI, BP, SP, BX, DX, CX, AX, ES, DS, FLAGS;
-{
-  printf("vgabios cirrus ret  ah%02x al%02x bx%04x cx%04x dx%04x\n",GET_AH(),GET_AL(),BX,CX,DX);
-}
-#endif

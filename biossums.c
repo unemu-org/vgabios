@@ -1,5 +1,5 @@
 /*
- * $Id: biossums.c 216 2019-12-30 23:40:08Z vruppert $
+ * $Id$
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public

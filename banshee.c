@@ -1,10 +1,7 @@
-/*
- * $Id: banshee.c 292 2021-06-03 12:24:22Z vruppert $
- */
 //
 //  3dfx Banshee VGABIOS Extension.
 //
-//  Copyright (C) 2021  Volker Ruppert
+//  Copyright (C) 2021-2026  Volker Ruppert
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,8 +16,6 @@
 //  You should have received a copy of the GNU Lesser General Public
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-
-//#define BANSHEE_DEBUG
 
 #define BANSHEE_MODE_SIZE 16
 
@@ -48,13 +43,10 @@ agp_msg:
 .ascii "AGP"
 .byte 0x00
 
+banshee_not_installed:
+.ascii " Banshee-compatible VGA not"
 detected_msg:
 .ascii " detected"
-.byte 0x0d,0x0a
-.byte 0x0d,0x0a,0x00
-
-banshee_not_installed:
-.ascii " Banshee-compatible VGA not detected"
 .byte 0x0d,0x0a
 .byte 0x0d,0x0a,0x00
 
@@ -104,6 +96,24 @@ banshee_1280x1024x8_crtc:
 .byte 0x00,0x60,0x00,0x00,0x00,0x00,0x00,0x00
 .byte 0x01,0x04,0xff,0xa0,0x40,0x01,0x28,0xc3
 .byte 0xff,0x00,0x00,0x51
+
+banshee_320x200x8_crtc:
+.byte 0x2d,0x27,0x28,0x90,0x29,0x8f,0xbf,0x1f
+.byte 0x00,0xc0,0x00,0x00,0x00,0x00,0x00,0x00
+.byte 0x9c,0x8e,0x8f,0x28,0x1f,0x96,0xb9,0xe3
+.byte 0xff,0x00,0x00,0x00
+
+banshee_320x240x8_crtc:
+.byte 0x2d,0x27,0x28,0x90,0x29,0x8f,0x0b,0x3e
+.byte 0x00,0xc0,0x00,0x00,0x00,0x00,0x00,0x00
+.byte 0xea,0x0c,0xdf,0x28,0x1f,0xe7,0x04,0xe3
+.byte 0xff,0x00,0x00,0x00
+
+banshee_400x300x8_crtc:
+.byte 0x3d,0x31,0x32,0x80,0x35,0x1d,0x72,0xf0
+.byte 0x00,0x60,0x00,0x00,0x00,0x00,0x00,0x00
+.byte 0x59,0x0d,0x57,0x64,0x00,0x58,0x73,0xe3
+.byte 0xff,0x00,0x00,0x00
 
 banshee_modes:
 ;; 640 x 400 x 8
@@ -256,6 +266,96 @@ banshee_modes:
 .byte 0xef
 .byte 0x06
 .word banshee_color_params_24bpp
+;; 320 x 200 x 8
+.byte 0x78
+.byte 8
+.word 320
+.word 200
+.word banshee_320x200x8_crtc
+.word 0xd1ea,0
+.byte 0x6f
+.byte 0x04
+.word banshee_color_params_8bpp
+;; 320 x 200 x 16
+.byte 0x79
+.byte 16
+.word 320
+.word 200
+.word banshee_320x200x8_crtc
+.word 0xd1ea,0
+.byte 0x6f
+.byte 0x06
+.word banshee_color_params_16bpp
+;; 320 x 200 x 24
+.byte 0x7a
+.byte 24
+.word 320
+.word 200
+.word banshee_320x200x8_crtc
+.word 0xd1ea,0
+.byte 0x6f
+.byte 0x06
+.word banshee_color_params_24bpp
+;; 320 x 240 x 8
+.byte 0x20
+.byte 8
+.word 320
+.word 240
+.word banshee_320x240x8_crtc
+.word 0xd1ea,0
+.byte 0x6f
+.byte 0x04
+.word banshee_color_params_8bpp
+;; 320 x 240 x 16
+.byte 0x21
+.byte 16
+.word 320
+.word 240
+.word banshee_320x240x8_crtc
+.word 0xd1ea,0
+.byte 0x6f
+.byte 0x06
+.word banshee_color_params_16bpp
+;; 320 x 240 x 24
+.byte 0x22
+.byte 24
+.word 320
+.word 240
+.word banshee_320x240x8_crtc
+.word 0xd1ea,0
+.byte 0x6f
+.byte 0x06
+.word banshee_color_params_24bpp
+;; 400 x 300 x 8
+.byte 0x23
+.byte 8
+.word 400
+.word 300
+.word banshee_400x300x8_crtc
+.word 0x56f4,0
+.byte 0x6f
+.byte 0x04
+.word banshee_color_params_8bpp
+;; 400 x 300 x 16
+.byte 0x24
+.byte 16
+.word 400
+.word 300
+.word banshee_400x300x8_crtc
+.word 0x56f4,0
+.byte 0x6f
+.byte 0x06
+.word banshee_color_params_16bpp
+;; 400 x 300 x 24
+.byte 0x25
+.byte 24
+.word 400
+.word 300
+.word banshee_400x300x8_crtc
+.word 0x56f4,0
+.byte 0x6f
+.byte 0x06
+.word banshee_color_params_24bpp
 banshee_mode_list_end:
 .byte 0xff
 
@@ -290,6 +390,24 @@ banshee_vesa_modelist:
 .word 0x011a, 0x0074
 ;; 1280x1024x24
 .word 0x011b, 0x0075
+;; 320x200x8
+.word 0x0120, 0x0078
+;; 320x200x16
+.word 0x010e, 0x0079
+;; 320x200x24
+.word 0x010f, 0x007a
+;; 320x240x8
+.word 0x0123, 0x0020
+;; 320x240x16
+.word 0x0124, 0x0021
+;; 320x240x24
+.word 0x0125, 0x0022
+;; 400x300x8
+.word 0x0126, 0x0023
+;; 400x300x16
+.word 0x0127, 0x0024
+;; 400x300x24
+.word 0x0128, 0x0025
 ;; invalid
 .word 0xffff, 0xffff
 
@@ -424,18 +542,22 @@ banshee_display_info:
   push si
   push cs
   pop  ds
-  mov  si, #threedfx_msg
-  call _display_string
   call banshee_detect
   mov  si, #banshee_not_installed
-  jc   banshee_show_msg
+  jc   banshee_msg_notinstalled
+  push ax
+  push bx
+  mov  si, #threedfx_msg
+  call display_string
+  pop  bx
+  pop  ax
   mov  si, #banshee_msg
   cmp  al, #0x03
   je   is_banshee
   mov  si, #voodoo3_msg
 is_banshee:
   push bx
-  call _display_string
+  call display_string
   pop  bx
   mov  si, #pci_msg
   mov  cx, bx
@@ -449,10 +571,13 @@ is_banshee:
   jz   is_pci
   mov  si, #agp_msg
 is_pci:
-  call _display_string
+  call display_string
   mov  si, #detected_msg
-banshee_show_msg:
-  call _display_string
+  mov  bl, #0x0b
+  db   0xa9 ;; skip next opcode (TEST AX, #0x0cb3)
+banshee_msg_notinstalled:
+  mov  bl, #0x0c
+  call display_string_color
   pop  si
   pop  ds
   ret
@@ -516,7 +641,7 @@ banshee_call_debug_dump:
   pusha
   push cs
   pop ds
-  call _banshee_call_debugmsg
+  call _int10_call_debugmsg
   popa
   pop ds
   pop es
@@ -528,7 +653,7 @@ banshee_ret_debug_dump:
   pusha
   push cs
   pop ds
-  call _banshee_ret_debugmsg
+  call _int10_ret_debugmsg
   popa
   pop ds
   pop es
@@ -573,16 +698,6 @@ banshee_switch_mode:
   out  dx, al
   mov ax, #0x01
   out  dx, al
-  mov  al, [si+1]
-  cmp  al, #0x08
-  jne  no_8bpp_mode
-  mov  al, #0x03
-  xor  ah, ah
-  push ax
-  call _load_dac_palette
-  inc  sp
-  inc  sp
-no_8bpp_mode:
   call banshee_get_io_base_address
   xor  eax, eax
   mov  dl, #0x4c ;; dacMode
@@ -598,12 +713,19 @@ no_8bpp_mode:
   out  dx, eax
 no_pll_setup:
   mov  ax, [si+4]
+  cmp  ax, #400
+  jae  no_half_mode1
+  shl  eax, #13
+  jnz  set_yres
+no_half_mode1:
   shl  eax, #12
+set_yres:
   or   ax, [si+2]
   mov  dl, #0x98 ;; vidScreenSize
   out  dx, eax
   and  eax, #0x00000fff
   mov  bl, [si+1]
+  inc  bl
   xor  bh, bh
   shr  bx, #3
   cmp  bl, #0x01
@@ -629,8 +751,20 @@ set_mode_8bpp_1:
   or   eax, ebx
   or   ax, #0x0c00
 set_mode_8bpp_2:
+  cmp  [si+4], #400
+  jae  no_half_mode2
+  or   al, #0x10
+no_half_mode2:
   mov  dl, #0x5c ;; vidProcCfg
   out  dx, eax
+  mov  al, [si+1]
+  cmp  al, #0x08
+  jne  no_8bpp_mode
+  push ax
+  mov  al, #0x03
+  call load_dac_palette
+  pop  ax
+no_8bpp_mode:
   pop  ds
   pop  dx
   pop  cx
@@ -792,7 +926,7 @@ no_256col:
   call get_crtc_xres
   mov  bx, ax
   xor  eax, eax
-  call get_crtc_yres
+  call stdvga_get_scanlines
   shr  ax, #4 ;; FIXME: use char height
   shl  eax, #12
   or   ax, bx
@@ -813,7 +947,7 @@ vga_gfx_mode:
   shr  bx, #1
 vga_16col_1:
   xor  eax, eax
-  call get_crtc_yres
+  call stdvga_get_scanlines
   test cl, #0x02
   jz   vga_16col_2
   shr  ax, #1
@@ -847,7 +981,7 @@ no_banshee2:
   pop  ds
   ret
 
-;; VGA compatibility helper functions
+;; VGA compatibility helper function
 
 get_crtc_xres:
   push dx
@@ -858,35 +992,6 @@ get_crtc_xres:
   in   al, dx
   inc  al
   pop  dx
-  ret
-
-get_crtc_yres:
-  push bx
-  push dx
-  call get_crtc_address
-  mov  al, #0x12
-  out  dx, al
-  inc  dx
-  in   al, dx
-  mov  bl, al
-  xor  bh, bh
-  dec  dx
-  mov  al, #0x07
-  out  dx, al
-  inc  dx
-  in   al, dx
-  test al, #0x02
-  jz   no_bit8
-  or   bh, #0x01
-no_bit8:
-  test al, #0x40
-  jz   no_bit9
-  or   bh, #0x02
-no_bit9:
-  mov  ax, bx
-  inc  ax
-  pop  dx
-  pop  bx
   ret
 
 ;; code for 'write character' support in 8bpp graphics modes
@@ -933,6 +1038,7 @@ banshee_8bpp_write_char:
   mov  ax, 8[bp] ;; xcurs
   shl  ax, #3
   push ax
+  xor  ax, ax
   mov  dx, 10[bp] ;; ycurs
   or   dx, dx
   jz   banshee_wc_set_start
@@ -1165,6 +1271,135 @@ banshee_fill_check_row:
 
 ;; Banshee VBE support
 
+  .align 2
+banshee_vesa_pm_start:
+  dw banshee_vesa_pm_set_window - banshee_vesa_pm_start
+  dw banshee_vesa_pm_set_display_start - banshee_vesa_pm_start
+  dw banshee_vesa_pm_set_palette_data - banshee_vesa_pm_start
+  dw 0x0000
+
+  USE32
+banshee_vesa_pm_set_window:
+  or   bx, bx
+  jz   banshee_vesa_pm_set_display_window1
+banshee_vesa_pm_set_window_fail:
+  mov  ax, #0x014f
+  ret
+banshee_vesa_pm_set_display_window1:
+  mov  ax, dx
+  push ebx
+  push ecx
+  push edx
+  push eax
+  call banshee_vesa_pm_get_io_base_address
+  mov  dl, #0x2c ;; vgaInit1
+  in   eax, dx
+  pop  ecx
+  shl  cx, #1
+  and  cx, #0x03ff
+  and  eax, #0xfffffc00
+  or   ax, cx
+  push ecx
+  and  eax, #0xfff003ff
+  shl  ecx, #10
+  or   eax, ecx
+  pop  ecx
+  out  dx, eax
+  mov  ax, cx
+  pop  edx
+  pop  ecx
+  pop  ebx
+  shr  ax, #1
+  cmp  ax, dx
+  jne  banshee_vesa_pm_set_window_fail
+  mov  ax, #0x004f
+  ret
+
+banshee_vesa_pm_set_display_start:
+  cmp  bl, #0x80
+  je   banshee_vesa_pm_set_display_start1
+  cmp  bl, #0x00
+  je   banshee_vesa_pm_set_display_start2
+banshee_vesa_pm_set_display_start_fail:
+  mov  ax, #0x014f
+  ret
+banshee_vesa_pm_set_display_start1:
+  push edx
+  mov  dx, #VGAREG_ACTL_RESET
+banshee_vesa_pm_wait_1:
+  in   al, dx
+  test al, #0x08
+  jz   banshee_vesa_pm_wait_1
+  pop  edx
+banshee_vesa_pm_set_display_start2:
+  push ecx
+  mov  ax, dx
+  shl  eax, #16
+  mov  ax, cx
+  shl  eax, #2
+  call banshee_vesa_pm_get_io_base_address
+  mov  dl, #0xe4 ;; vidDesktopStartAddr
+  out  dx, eax
+  mov  ecx, eax
+  in   eax, dx
+  cmp  eax, ecx
+  jnz  banshee_vesa_pm_set_display_start_fail
+  pop  ecx
+  mov  ax, #0x004f
+  ret
+
+banshee_vesa_pm_set_palette_data:
+  cmp  bl, #0x80
+  jne  banshee_vesa_pm_no_wait
+  push edx
+  mov  dx, #VGAREG_ACTL_RESET
+banshee_vesa_pm_wait_2:
+  in   al, dx
+  test al, #0x08
+  jz   banshee_vesa_pm_wait_2
+  pop  edx
+banshee_vesa_pm_no_wait:
+  push  ecx
+  push  edx
+  push  edi
+  mov   al, dl
+  mov   dx, # VGAREG_DAC_WRITE_ADDRESS
+  out   dx, al
+  mov   dx, # VGAREG_DAC_DATA
+  cld
+banshee_vesa_pm_set_dac_loop:
+  seg   es
+  mov   al, [edi+2]
+  out   dx, al
+  seg   es
+  mov   al, [edi+1]
+  out   dx, al
+  seg   es
+  mov   al, [edi]
+  out   dx, al
+  add   edi, #4
+  loop  banshee_vesa_pm_set_dac_loop
+  pop   edi
+  pop   edx
+  pop   ecx
+  mov   ax, #0x004f
+  ret
+
+banshee_vesa_pm_get_io_base_address:
+  push eax
+  mov  dx, #VGAREG_VGA_CRTC_ADDRESS
+  mov  al, #0x1c
+  out  dx, al
+  inc  dx
+  in   al, dx
+  mov  dh, al
+  mov  dl, #0x00
+  pop  eax
+  ret
+
+  USE16
+banshee_vesa_pm_end:
+
 banshee_vesa:
 #ifdef BANSHEE_DEBUG
   call banshee_call_debug_dump
@@ -1188,9 +1423,11 @@ banshee_vesa_unimplemented:
 banshee_vesa_00h:
   push ds
   push si
+  push bx
   mov  bp, di
   push es
   pop  ds
+  xor  bx, bx
   cld
   mov  ax, [di]
   cmp  ax, #0x4256 ;; VB
@@ -1199,20 +1436,47 @@ banshee_vesa_00h:
   cmp  ax, #0x3245 ;; E2
   jnz  bv00_1
   ;; VBE2
+  lea  di, 0x100[bp]
+  mov  bx, di
+  mov  si, #banshee_vesa_oemname
+  call strcpy
+  add  bx, ax
+  mov  ax, di
+  lea  di, 0x06[bp]
+  stosw
+  mov  ax, es
+  stosw
   lea  di, 0x14[bp]
   mov  ax, #0x0100 ;; soft ver.
   stosw
-  mov  ax, # banshee_vesa_vendorname
+  push di
+  mov  si, #banshee_vesa_vendorname
+  mov  di, bx
+  call strcpy
+  add  bx, ax
+  mov  ax, di
+  pop  di
   stosw
-  mov  ax, cs
+  mov  ax, es
   stosw
-  mov  ax, # banshee_vesa_productname
+  push di
+  mov  si, #banshee_vesa_productname
+  mov  di, bx
+  call strcpy
+  add  bx, ax
+  mov  ax, di
+  pop  di
   stosw
-  mov  ax, cs
+  mov  ax, es
   stosw
-  mov  ax, # banshee_vesa_productrevision
+  push di
+  mov  si, #banshee_vesa_productrevision
+  mov  di, bx
+  call strcpy
+  mov  ax, di
+  pop  di
   stosw
-  mov  ax, cs
+  mov  ax, es
   stosw
 bv00_1:
   mov  di, bp
@@ -1222,33 +1486,41 @@ bv00_1:
   stosw
   mov  ax, #0x0200 ;; v2.00
   stosw
-  mov  ax, # banshee_vesa_oemname
+  or   bx, bx
+  jnz  bv00_2 ; already set for VBE 2.0
+  mov  ax, #banshee_vesa_oemname
   stosw
   mov  ax, cs
   stosw
-  xor  ax, ax ;; caps
+  jz   bv00_3
+bv00_2:
+  add  di, #4
+bv00_3:
+  mov  ax, 0x0001 ;; caps: 8-bit DAC
   stosw
+  xor  ax, ax
   stosw
-  lea  ax, 0x40[bp]
+  lea  ax, 0x22[bp]
   stosw
   mov  ax, es
   stosw
   mov  ax, #0x0100;; vram in 64k
   stosw
 
-  push cs
+  push cs ; build mode list
   pop  ds
-  lea  di, 0x40[bp]
+  lea  di, 0x22[bp]
   mov  si, #banshee_vesa_modelist
-bv00_2:
+bv00_4:
   lodsw
   stosw
   add  si, #2
   cmp  ax, #0xffff
-  jnz  bv00_2
+  jnz  bv00_4
 
-  mov  ax, #0x004F
+  mov  ax, #0x004F ; no error
   mov  di, bp
+  pop  bx
   pop  si
   pop  ds
   ret
@@ -1279,7 +1551,7 @@ banshee_vesa_01h_1:
     stosw ;; clear buffer
   pop  di
 
-  mov  ax, #0x003b ;; mode attr
+  mov  ax, #0x001b ;; mode attr
   push bx
   mov  bl, [si+1] ;; bpp
   cmp  bl, #0x08
@@ -1290,7 +1562,7 @@ banshee_vesa_no_8bpp:
   stosw
   mov  ax, #0x0007 ;; win attr
   stosw
-  mov  ax, #0x0020 ;; granularity =32K
+  mov  ax, #0x0040 ;; granularity =64K
   stosw
   mov  ax, #0x0040 ;; size =64K
   stosw
@@ -1323,17 +1595,17 @@ banshee_vesa_no_8bpp:
   mov  al, #0x0   ;; XXX size of bank in K
   stosb
   call banshee_get_line_offset_entry
-  mov  bx, [si+4]
-  mul  bx ;; dx:ax=vramdisp
-  or   ax, ax
-  jz   banshee_vesa_01h_3
-  inc  dx
-banshee_vesa_01h_3:
-  mov  ax, #0x0100 ;; vram in 64k
-  mov  cx, dx
-  xor  dx, dx
-  div  cx
+  mov  bx, ax
+  mov  dx, #0x0100 ;; vram in 64k
+  xor  ax, ax
+  div  bx
+  xor dx, dx
+  div word [si+4] ;; Y Resolution
   dec  ax
+  cmp ax, #0x100
+  jb no_clamp
+  mov ax, #0xff
+no_clamp:
   stosb  ;; number of image pages = vramtotal/vramdisp-1
   mov  al, #0x00
   stosb
@@ -1584,16 +1856,19 @@ banshee_vesa_05h:
   ret
 banshee_vesa_05h_set:
   mov  ax, dx
+  shl  ax, #1
   push bx
   mov  bl, #0x03
   call banshee_set_bank
   pop  bx
+  shr  ax, #1
   cmp  ax, dx
   jne  banshee_vesa_05h_failed
   mov  ax, #0x004f
   ret
 banshee_vesa_05h_get:
   call banshee_get_bank
+  shr  ax, #1
   mov  dx, ax
   mov  ax, #0x004f
   ret
@@ -1659,13 +1934,15 @@ banshee_vesa_06h_bl3:
 
 banshee_vesa_07h:
   cmp  bl, #0x80
-  je   banshee_vesa_07h_bl0
+  je   banshee_vesa_07h_bl80
   cmp  bl, #0x01
-  je   banshee_vesa_07h_bl1
-  jb   banshee_vesa_07h_bl0
+  je   banshee_vesa_07h_bl01
+  jb   banshee_vesa_07h_bl00
   mov  ax, #0x0100
   ret
-banshee_vesa_07h_bl0:
+banshee_vesa_07h_bl80:
+  call vbebios_vsync_wait
+banshee_vesa_07h_bl00:
   push dx
   call banshee_get_bpp_bytes
   mov  bl, al
@@ -1684,7 +1961,7 @@ banshee_vesa_07h_noinc:
   call banshee_set_start_addr
   mov  ax, #0x004f
   ret
-banshee_vesa_07h_bl1:
+banshee_vesa_07h_bl01:
   call banshee_get_start_addr
   push ax
   call banshee_get_line_offset
@@ -1702,6 +1979,56 @@ banshee_vesa_07h_bl1:
   mov  cx, ax
   pop  dx
   mov  ax, #0x004f
+  ret
+
+banshee_vesa_08h:
+  cmp  bl, #0x01
+  je   banshee_get_dac_pal_format
+  jb   banshee_set_dac_pal_format
+  mov  ax, #0x0100
+  ret
+banshee_set_dac_pal_format:
+  push dx
+  call banshee_get_dac_mode
+  cmp  bh, #0x06
+  je   banshee_set_normal_dac
+  cmp  bh, #0x08
+  jne  banshee_vesa_08h_unsupported
+  or   eax, #0x0004
+  jnz  banshee_set_dac_mode
+banshee_set_normal_dac:
+  and  eax, #~0x0004
+banshee_set_dac_mode:
+  out  dx, eax
+  pop  dx
+banshee_get_dac_pal_format:
+  push dx
+  mov  bh, #0x06
+  call banshee_get_dac_mode
+  and  eax, #0x0004
+  jz   banshee_vesa_08h_ok
+  mov  bh, #0x08
+banshee_vesa_08h_ok:
+  pop  dx
+  mov  ax, #0x004f
+  ret
+banshee_vesa_08h_unsupported:
+  pop  dx
+  mov  ax, #0x014f
+  ret
+
+banshee_vesa_0ah:
+  test bl, bl
+  jnz banshee_vesa_0ah_fail
+  mov di, #0xc000
+  mov es, di
+  mov di, # banshee_vesa_pm_start
+  mov cx, # banshee_vesa_pm_end
+  sub cx, di
+  mov ax, #0x004f
+  ret
+banshee_vesa_0ah_fail:
+  mov ax, #0x014f
   ret
 
 banshee_vesa_15h:
@@ -1843,14 +2170,17 @@ banshee_get_line_offset:
   ret
 
 banshee_set_line_offset:
+  cmp  bx, #0x8000
+  jb   banshee_offset_ok
+  mov  bx, #0x7fff
+banshee_offset_ok:
   push bx
   push ax
   call banshee_get_io_base_address
   mov  dl, #0xe8 ;; vidDesktopOverlayStride
   in   eax, dx
   pop  bx
-  and  bx, #0x7fff
-  or   ax, bx
+  mov  ax, bx
   out  dx, eax
   pop  bx
   ret
@@ -1871,6 +2201,12 @@ banshee_set_start_addr:
   call banshee_get_io_base_address
   mov  dl, #0xe4 ;; vidDesktopStartAddr
   out  dx, eax
+  ret
+
+banshee_get_dac_mode:
+  call banshee_get_io_base_address
+  mov  dl, #0x28 ;; vgaInit0
+  in   eax, dx
   ret
 
 ;; DDC helper functions for VESA 15h
@@ -2030,9 +2366,9 @@ banshee_vesa_handlers:
   dw banshee_vesa_06h
   dw banshee_vesa_07h
   ;; 08h
-  dw banshee_vesa_unimplemented
-  dw banshee_vesa_unimplemented
-  dw banshee_vesa_unimplemented
+  dw banshee_vesa_08h
+  dw vbe_biosfn_set_get_palette_data
+  dw banshee_vesa_0ah
   dw banshee_vesa_unimplemented
   ;; 0Ch
   dw banshee_vesa_unimplemented
@@ -2048,17 +2384,3 @@ banshee_vesa_handlers:
   dw banshee_vesa_unimplemented
   dw banshee_vesa_15h
 ASM_END
-
-#ifdef BANSHEE_DEBUG
-static void banshee_call_debugmsg(DI, SI, BP, SP, BX, DX, CX, AX, DS, ES, FLAGS)
-  Bit16u DI, SI, BP, SP, BX, DX, CX, AX, ES, DS, FLAGS;
-{
-  printf("vgabios banshee call ah%02x al%02x bx%04x cx%04x dx%04x\n",GET_AH(),GET_AL(),BX,CX,DX);
-}
-
-static void banshee_ret_debugmsg(DI, SI, BP, SP, BX, DX, CX, AX, DS, ES, FLAGS)
-  Bit16u DI, SI, BP, SP, BX, DX, CX, AX, ES, DS, FLAGS;
-{
-  printf("vgabios banshee ret  ah%02x al%02x bx%04x cx%04x dx%04x\n",GET_AH(),GET_AL(),BX,CX,DX);
-}
-#endif

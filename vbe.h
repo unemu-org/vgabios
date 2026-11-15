@@ -1,24 +1,11 @@
-/*
- * $Id: vbe.h 290 2021-05-31 20:25:18Z vruppert $
- */
 
 #ifndef vbe_h_included
 #define vbe_h_included
 
 #include "vgabios.h"
 
-// DISPI helper function
-void dispi_set_enable(enable);
-
-/** VBE int10 API
- *
- *  See the function descriptions in vbe.c for more information
- */
-void vbe_biosfn_return_controller_information(AX, ES, DI);
-void vbe_biosfn_return_mode_information(AX, CX, ES, DI);
-void vbe_biosfn_set_mode(AX, BX);
-
 // The official VBE Information Block
+/*
 typedef struct VbeInfoBlock
 { 
    Bit8u  VbeSignature[4];
@@ -39,7 +26,7 @@ typedef struct VbeInfoBlock
    Bit16u  Reserved[111]; // used for dynamicly generated mode list
    Bit8u  OemData[256];
 } VbeInfoBlock;
-
+*/
 
 // This one is for compactly storing a static list of mode info blocks
 // this saves us 189 bytes per block
@@ -79,22 +66,9 @@ typedef struct ModeInfoBlockCompact
    Bit8u  DirectColorModeInfo;
 // Mandatory information for VBE 2.0 and above
    Bit32u PhysBasePtr;
-   Bit32u OffScreenMemOffset;
-   Bit16u OffScreenMemSize;
-// Mandatory information for VBE 3.0 and above
-   Bit16u LinBytesPerScanLine;
-   Bit8u  BnkNumberOfPages;
-   Bit8u  LinNumberOfPages;
-   Bit8u  LinRedMaskSize;
-   Bit8u  LinRedFieldPosition;
-   Bit8u  LinGreenMaskSize;
-   Bit8u  LinGreenFieldPosition;
-   Bit8u  LinBlueMaskSize;
-   Bit8u  LinBlueFieldPosition;
-   Bit8u  LinRsvdMaskSize;
-   Bit8u  LinRsvdFieldPosition;
-   Bit32u MaxPixelClock;
-//   Bit8u  Reserved[189]; // DO NOT PUT THIS IN HERE because of Compact Mode Info storage in bios 
+//   Bit32u OffScreenMemOffset;
+//   Bit16u OffScreenMemSize;
+//   Bit8u  Reserved[206]; // DO NOT PUT THIS IN HERE because of Compact Mode Info storage in bios 
 } ModeInfoBlockCompact;
 
 typedef struct ModeInfoBlock
