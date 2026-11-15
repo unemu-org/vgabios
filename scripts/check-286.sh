@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright (C) 2026 the contributors to the unemu fork of the LGPL VGABIOS.
 # Fail if the assembled ROM contains 386-only instructions.
 # The unemu AT profiles run an 80286, so the ROM must be 8086/80186/80286 code.
 # Usage: scripts/check-286.sh path/to/vgabios-<variant>.lst

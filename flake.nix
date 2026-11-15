@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright (C) 2026 the contributors to the unemu fork of the LGPL VGABIOS.
 {
   description = "LGPL VGABIOS fork for unemu machines: reproducible standard-VGA ROM builds";
 
