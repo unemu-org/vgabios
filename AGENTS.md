@@ -4,7 +4,8 @@ Repo-specific notes for coding agents. Generic software-engineering advice is ou
 
 ## What this is
 
-A fork of the **LGPL VGABIOS 0.8a** (the video BIOS used by Bochs and QEMU) for the
+A fork of the **LGPL VGABIOS** (the video BIOS used by Bochs and QEMU), based on
+upstream 0.9d (bochs-emu/VGABIOS), for the
 unemu family of emulators. Its first consumer is **unemupc98**, an IBM PC/AT-class
 emulator, whose open-firmware AT profile needs an open video BIOS that runs on an
 **80286** with a register-level VGA, so public machine images never depend on

@@ -8,15 +8,16 @@ register-level VGA, so that public machine images (DOS games and software)
 never depend on proprietary ROMs.
 
 - Repository: <https://github.com/unemu-org/vgabios>
-- Upstream: <https://savannah.nongnu.org/projects/vgabios/>, release
-  `vgabios-0.8a` (tarball SHA-256
-  `481042240ef0f1c918780c92a6bb42ad4d3f5d989b29502fa7ee7faf13a041b9`).
-- The first commit is that release verbatim; every later commit is our change.
-- The upstream project's repository on GitHub is
-  <https://github.com/bochs-emu/VGABIOS>; the GitHub repository above is
-  forked from it. Its `v0_8a` tag holds the same sources under `vgabios/`,
-  which differ from the tarball only in the expanded `$Id$` keyword lines. Our
-  history starts from the tarball, so it does not share commits with it.
+- Upstream: <https://github.com/bochs-emu/VGABIOS> (earlier
+  <https://savannah.nongnu.org/projects/vgabios/>); the GitHub repository
+  above is forked from it. This fork is based on upstream release **0.9d**
+  (tag `v0_9d`, commit `12d978b`).
+- History: the first commit, `ad26c4a`, is the 0.8a release tarball verbatim
+  (SHA-256 `481042240ef0f1c918780c92a6bb42ad4d3f5d989b29502fa7ee7faf13a041b9`).
+  Merge `b0c49bb` joins upstream's history up to 0.8a (`b9555a0`, the same
+  sources except the expanded `$Id$` keyword lines) without changing the
+  tree, and merge `6dca805` brings in upstream 0.9d. Every other commit is our
+  change.
 - Licence: GNU LGPL 2.1, see `COPYING`. Copyright the LGPL VGABios developers
   and the contributors to this fork.
 
@@ -58,7 +59,7 @@ supports, because consumers pin the ROM by its SHA-256. The build fixes:
   the ROM bytes. Any change to the preprocessed text can do the same, even in
   white space. The two `.s` names do not change the bytes; they stay fixed
   anyway.
-- Version and date strings: `VGABIOS_VERS="0.8a-unemu"` and
+- Version and date strings: `VGABIOS_VERS="0.9d-unemu"` and
   `VGABIOS_DATE="01 Jan 1980"`.
 
 dev86 (bcc, as86) is compiled on each host by that host's compiler, and so is
@@ -91,18 +92,20 @@ SHA-256.
   and `scripts/check-286.sh` finds no 386-only instructions in it. The check
   reads both the mnemonics and the opcode bytes of the as86 listing (386
   prefixes 66/67/64/65 and 0F opcodes other than 0F00-0F06).
-- `std386` gives the same bytes as the upstream 0.8a source built with no
-  define.
-- The std ROM and the probe image match `releaseSha256` on aarch64-darwin and,
-  in CI, on x86_64-linux; std386 gives the same bytes on both. aarch64-linux
-  and x86_64-darwin are not verified yet.
+- `std386` gives the same bytes as the upstream 0.9d source built the same
+  way with no define.
+- The std ROM and the probe image match `releaseSha256` on aarch64-darwin;
+  x86_64-linux is checked by CI. aarch64-linux and x86_64-darwin are not
+  verified yet.
 - On unemupc98's open AT profile (`at-games-open` with a VGA card, the ROM at
   C0000) FreeDOS boots to the prompt and the INT 10h probe reports no failure.
+  This was measured with the 0.8a-based ROM; the 0.9d-based ROM is not yet
+  qualified.
 
 ## Deviations from upstream
 
-- `CPU386` define (`vgabios.c`): upstream 0.8a uses 32-bit instructions even in
-  a build with no define, so it does not run on an 80286. `CPU386` selects
+- `CPU386` define (`vgabios.c`): upstream (0.8a and 0.9d alike) uses 32-bit
+  instructions even in a build with no define, so it does not run on an 80286. `CPU386` selects
   upstream's 32-bit code; `VBE`, `CIRRUS`, `BANSHEE` and `PCIBIOS` imply it, so
   every upstream Makefile build gives the same code as before. Without
   `CPU386`:
@@ -116,21 +119,23 @@ SHA-256.
   - `pci_read_reg` (32-bit PCI configuration access) is not assembled. Only
     the `VBE`, `CIRRUS` and `BANSHEE` code calls it.
 - Prebuilt binaries removed: upstream's `VGABIOS-lgpl-latest*.bin` (the
-  `VBE`, `CIRRUS` and `BANSHEE` builds and their debug variants) were built
-  from unmodified 0.8a. Their corresponding source is commit `ad26c4a`, not
-  this tree, so they would ship next to source that does not match them.
+  `VBE`, `CIRRUS` and `BANSHEE` builds and their variants) were built by
+  upstream from unmodified sources (0.8a in `ad26c4a`, 0.9d in `12d978b`), not
+  from this tree, so they would ship next to source that does not match them.
   `make` still builds them from this tree, and `.gitignore` keeps them out.
   The upstream `README` still mentions them as precompiled files.
 
 ## Releases
 
-A release is a signed tag `v0.8a-unemu.N`. Its message states the source
+A release is a signed tag `v<upstream>-unemu.N`: `v0.8a-unemu.1` to `.3` are
+based on 0.8a, and releases from `v0.9d-unemu.1` on are based on 0.9d. Its
+message states the source
 revision and the SHA-256s of `vgabios-std.bin` and `int10-probe-1200.img`,
 the same values as `releaseSha256` in `flake.nix`. To check a release:
 
 ```sh
-git tag -v v0.8a-unemu.N     # the tag signature
-git checkout v0.8a-unemu.N
+git tag -v v0.9d-unemu.N     # the tag signature
+git checkout v0.9d-unemu.N
 nix flake check              # the 286 check and both SHA-256s
 ```
 

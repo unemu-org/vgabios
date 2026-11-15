@@ -20,7 +20,7 @@
       # states the same values. nix flake check fails when a build gives other
       # bytes on any system. A change meant to alter either file updates them.
       releaseSha256 = {
-        std = "7570ef9c66fd386450bb35fd2b6c91aba6f8ec69a565a1d7747e6e6716ea5389";
+        std = "cdd9e2df0217bef19962a1d99956b09fdf162a7ef29e586cd33dfcde2b77e10b";
         int10-probe = "21b9dd1db3068bb73f3fde16058578368719f98b6d4335f45ec6681eb47beb58";
       };
       # One build variant of the ROM. `flags` are the upstream Makefile's
@@ -30,7 +30,7 @@
           pkgs = pkgsFor system;
           dev86 = dev86For pkgs;
           # Fixed version and date strings make the ROM bytes reproducible.
-          version = "0.8a-unemu";
+          version = "0.9d-unemu";
           date = "01 Jan 1980";
           # bcc's code can change with the exact text it reads (white space,
           # file names), so every system preprocesses with GCC 14.3.0 from the
@@ -79,7 +79,7 @@
           let pkgs = pkgsFor system; in
           pkgs.stdenv.mkDerivation {
             pname = "vgabios-int10-probe";
-            version = "0.8a-unemu";
+            version = "0.9d-unemu";
             src = ./tests/unemu;
             nativeBuildInputs = [ pkgs.nasm ];
             dontConfigure = true;
