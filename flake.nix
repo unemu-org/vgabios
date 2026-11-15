@@ -13,6 +13,13 @@
       dev86For = pkgs: pkgs.dev86.overrideAttrs (old: {
         meta = old.meta // { platforms = nixpkgs.lib.platforms.unix; };
       });
+      # Expected SHA-256s of the std ROM and the probe image; the release tag
+      # states the same values. nix flake check fails when a build gives other
+      # bytes on any system. A change meant to alter either file updates them.
+      releaseSha256 = {
+        std = "7570ef9c66fd386450bb35fd2b6c91aba6f8ec69a565a1d7747e6e6716ea5389";
+        int10-probe = "21b9dd1db3068bb73f3fde16058578368719f98b6d4335f45ec6681eb47beb58";
+      };
       # One build variant of the ROM. `flags` are the upstream Makefile's
       # VGAFLAGS; the standard ISA VGA build uses none (no VBE, no PCI header).
       romFor = system: { name, flags }:
@@ -22,6 +29,13 @@
           # Fixed version and date strings make the ROM bytes reproducible.
           version = "0.8a-unemu";
           date = "01 Jan 1980";
+          # bcc's code can change with the exact text it reads (white space,
+          # file names), so every system preprocesses with GCC 14.3.0 from the
+          # pinned nixpkgs, not the stdenv compiler (clang on macOS), with no
+          # platform macros (-undef) and no system headers (-nostdinc). The
+          # tool flags and intermediate file names below are part of the same
+          # contract (README.unemu.md, "Reproducibility").
+          gcc = pkgs.gcc14.cc;
         in
         pkgs.stdenv.mkDerivation {
           pname = "vgabios-${name}";
@@ -32,7 +46,7 @@
           buildPhase = ''
             runHook preBuild
             $CC -O2 -o biossums biossums.c
-            $CC -E -P vgabios.c ${flags} \
+            ${gcc}/bin/gcc -E -P -undef -nostdinc vgabios.c ${flags} \
               '-DVGABIOS_VERS="${version}"' '-DVGABIOS_DATE="${date}"' > _rom_.c
             bcc -o rom.s -C-c -D__i86__ -S -0 _rom_.c
             sed -e 's/^\.text//' -e 's/^\.data//' rom.s > _rom_.s
@@ -85,12 +99,25 @@
       });
 
       # nix flake check: the std ROM must be 80286 code (scripts/check-286.sh)
-      # and a valid option ROM (32 KiB, 55 AA, length byte, zero checksum).
+      # and a valid option ROM (32 KiB, 55 AA, length byte, zero checksum), and
+      # the std ROM and the probe image must match releaseSha256.
       checks = forAll (system:
         let
           pkgs = pkgsFor system;
           std = self.packages.${system}.std;
+          probe = self.packages.${system}.int10-probe;
         in {
+          release-sha256 = pkgs.runCommand "vgabios-release-sha256-check" { } ''
+            check() {
+              got=$(sha256sum "$2" | cut -d' ' -f1)
+              [ "$got" = "$3" ] || { echo "$1: sha256 $got, expected $3" >&2; exit 1; }
+            }
+            check std ${std}/vgabios-std.bin ${releaseSha256.std}
+            check int10-probe ${probe}/int10-probe-1200.img ${releaseSha256.int10-probe}
+            echo "std ROM and probe image match releaseSha256"
+            touch $out
+          '';
+
           std-286 = pkgs.runCommand "vgabios-std-286-check" { } ''
             rom=${std}/vgabios-std.bin
             bash ${./scripts/check-286.sh} ${std}/vgabios-std.lst

@@ -19,15 +19,52 @@ never depend on proprietary ROMs.
 ```sh
 nix build            # result/vgabios-std.bin, .lst (listing), .bin.sha256
 nix develop          # dev86 (bcc, as86, ld86), make, nasm/ndisasm
-nix flake check      # std: check-286.sh, 32 KiB, 55 AA 40, zero checksum
+nix flake check      # std: check-286.sh, 32 KiB, 55 AA 40, zero checksum;
+                     # std and probe: release SHA-256s
 ```
 
 `std` is the standard ISA VGA build: the upstream source with no `VBE`,
 `PCIBIOS`, `CIRRUS`, `BANSHEE` or `CPU386` define, so it is 80286 real-mode
 code (8086/80186/80286 instructions). `nix build .#std386` gives the same build with `-DCPU386`, which keeps
-upstream's 32-bit code paths. The version string and date are fixed
-in `flake.nix`, so the same source always gives the same ROM bytes.
+upstream's 32-bit code paths.
 nixpkgs marks dev86 as Linux-only; the flake lifts that, and it builds on macOS.
+
+## Reproducibility
+
+The same source must give the same ROM bytes on every system the flake
+supports, because consumers pin the ROM by its SHA-256. The build fixes:
+
+- nixpkgs: the revision pinned in `flake.nix`, so dev86, GCC and the other
+  tools are the same versions everywhere.
+- Preprocessor: unwrapped GCC 14.3.0 from that nixpkgs, run as
+  `gcc -E -P -undef -nostdinc`, on every system. The flake does not use the
+  stdenv compiler, which is clang on macOS and GCC on Linux. `-undef` drops the
+  platform macros and `-nostdinc` the system headers. This source uses no
+  predefined macros and includes only its own files, so with these flags the
+  host does not change its preprocessed text.
+- Tool flags: `bcc -C-c -D__i86__ -S -0` and `as86 -u -w- -g -0 -j -O`, as in
+  `flake.nix`.
+- Intermediate file names: `_rom_.c` (the bcc input), `rom.s` and `_rom_.s`.
+  bcc with `-S` copies its input, file name included, into the assembly as
+  comments, and the code it generates can change with the length of that
+  text: with a 33-character input name instead of `_rom_.c`, one `jmp` became
+  a `br`, which changed
+  the ROM bytes. Any change to the preprocessed text can do the same, even in
+  white space. The two `.s` names do not change the bytes; they stay fixed
+  anyway.
+- Version and date strings: `VGABIOS_VERS="0.8a-unemu"` and
+  `VGABIOS_DATE="01 Jan 1980"`.
+
+dev86 (bcc, as86) is compiled on each host by that host's compiler, and so is
+the checksum tool. The pins above do not cover how those binaries behave; only
+the hash check does. `nix flake check` compares the SHA-256s of
+`vgabios-std.bin` and `int10-probe-1200.img` with `releaseSha256` in
+`flake.nix`, so a system that builds other bytes fails the check. The check
+runs only where someone runs it: before a release, run it on every system
+consumers build on, at least x86_64-linux
+(`nix build .#checks.x86_64-linux.release-sha256` on a Linux builder). A change
+meant to alter either file updates those values, and the next release tag
+states them.
 
 ## INT 10h probe
 
@@ -50,6 +87,8 @@ SHA-256.
   prefixes 66/67/64/65 and 0F opcodes other than 0F00-0F06).
 - `std386` gives the same bytes as the upstream 0.8a source built with no
   define.
+- The std ROM and the probe image match `releaseSha256` on aarch64-darwin.
+  x86_64-linux, aarch64-linux and x86_64-darwin are not verified yet.
 - On unemupc98's open AT profile (`at-games-open` with a VGA card, the ROM at
   C0000) FreeDOS boots to the prompt and the INT 10h probe reports no failure.
 
