@@ -304,6 +304,50 @@ main:
     mov bx, 0x0741
     call eq
     CHECK "rdchar"
+    ; teletype BEL: the BIOS programs PIT counter 2 for a tone and leaves the
+    ; cursor and port 61h bits 0-3 as they were. Counter 2 starts in mode 0
+    ; at FFFFh, so a BIOS that ignores BEL leaves a count far above a tone's.
+    mov al, 0xB0                ; counter 2, LSB then MSB, mode 0
+    out 0x43, al
+    mov al, 0xFF
+    out 0x42, al
+    out 0x42, al
+    in al, 0x61
+    and al, 0x0F
+    mov [tmp1], al
+    mov ax, 0x0E07
+    xor bx, bx
+    int 0x10
+    mov al, 0x80                ; latch counter 2
+    out 0x43, al
+    in al, 0x42
+    mov ah, al
+    in al, 0x42
+    xchg al, ah                 ; AX = counter 2
+    mov [tmp2], ax
+    LOGS {13, " bel:"}
+    mov ax, [tmp2]
+    call log_hex
+    mov ax, [tmp2]
+    cmp ax, 0x8000              ; CF set: count below 8000h, a tone divisor
+    cmc
+    jc .bel
+    in al, 0x61
+    and al, 0x0F
+    xor ah, ah
+    mov bl, [tmp1]
+    xor bh, bh
+    call eq
+    jc .bel
+    mov ah, 0x03
+    xor bh, bh
+    mov dx, 0xFFFF
+    int 0x10
+    mov ax, dx
+    mov bx, 0x0A14
+    call eq
+.bel:
+    CHECK "tty.bel"
     ; scroll window up one line: row 10 col 20 cell moves to row 9
     mov ax, 0x0601
     mov bh, 0x07

@@ -79,8 +79,11 @@ states them.
 floppy built from `tests/unemu/int10-probe.asm`, with its listing and SHA-256.
 It checks the video BIOS in modes 03h, 0Dh and 13h by reading registers and
 video memory back: mode set and BIOS data area, the 8x16 font in plane 2,
-cursor, teletype, scroll, active page (CRTC start), pixel write/read, plane
-bits, pel panning, DAC and AH=1Ch save/restore. It then returns to mode 03h,
+cursor, teletype (including BEL), scroll, active page (CRTC start), pixel
+write/read, plane bits, pel panning, DAC and AH=1Ch save/restore. The BEL check
+starts PIT counter 2 at FFFFh and expects the BIOS to have reprogrammed it for
+a tone, with the cursor and port 61h bits 0-3 unchanged; how the tone sounds
+is for the emulator's speaker trace. It then returns to mode 03h,
 prints `name ok` or `name FAIL` for each check and the number of failures, and
 halts. The checks do not judge the picture: scanout belongs to the emulator's
 own tests. unemupc98 uses the image as an open test fixture, pinned by its
@@ -92,8 +95,8 @@ SHA-256.
   and `scripts/check-286.sh` finds no 386-only instructions in it. The check
   reads both the mnemonics and the opcode bytes of the as86 listing (386
   prefixes 66/67/64/65 and 0F opcodes other than 0F00-0F06).
-- `std386` gives the same bytes as the upstream 0.9d source built the same
-  way with no define.
+- Without the BEL change, `std386` gives the same bytes as the upstream 0.9d
+  source built the same way with no define.
 - The std ROM and the probe image match `releaseSha256` on aarch64-darwin;
   x86_64-linux is checked by CI. aarch64-linux and x86_64-darwin are not
   verified yet.
@@ -117,6 +120,17 @@ SHA-256.
     does not change.
   - `pci_read_reg` (32-bit PCI configuration access) is not assembled. Only
     the `VBE`, `CIRRUS` and `BANSHEE` code calls it.
+- BEL (`vgabios.c`, `vga_beep`): upstream's teletype output ignores 07h
+  (`//FIXME should beep`). This fork sounds the PC speaker for INT 10h AH=0Eh
+  and AH=13h at about 896 Hz (PIT counter 2 divisor 1331, the divisor of the
+  IBM PC BIOS beep) for about 0.48 s (31/64 s). The wait counts the port 61h
+  bit 4 refresh toggles (15.085 us each) and ends early if the bit stops
+  toggling, so an emulator whose bit 4 does not follow time gives a shorter
+  tone. Interrupts are enabled during the wait and disabled around the port
+  writes, as in the IBM PC/AT BIOS; the interrupt flag is as found on return.
+  Port 61h gets its value on entry back, except that bits 0-1 stay clear if
+  an interrupt handler cleared them. It is in every build and costs 74 bytes
+  in std; only the `CIRRUS_DEBUG` build grows, from 33 KiB to 33.5 KiB.
 - Prebuilt binaries removed: upstream's `VGABIOS-lgpl-latest*.bin` (the
   `VBE`, `CIRRUS` and `BANSHEE` builds and their variants) were built by
   upstream from unmodified sources (0.8a in `ad26c4a`, 0.9d in `12d978b`), not

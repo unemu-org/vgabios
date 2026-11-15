@@ -20,8 +20,8 @@
       # states the same values. nix flake check fails when a build gives other
       # bytes on any system. A change meant to alter either file updates them.
       releaseSha256 = {
-        std = "cdd9e2df0217bef19962a1d99956b09fdf162a7ef29e586cd33dfcde2b77e10b";
-        int10-probe = "21b9dd1db3068bb73f3fde16058578368719f98b6d4335f45ec6681eb47beb58";
+        std = "b867f3846f44be63b1b10febc1ce79c9435f5d1233c67a0b63164ab48359a582";
+        int10-probe = "7c928cec8e49c04c91d1cb7194b5f508db3d86ac89be9867a7290eb04c11f1b4";
       };
       # One build variant of the ROM. `flags` are the upstream Makefile's
       # VGAFLAGS; the standard ISA VGA build uses none (no VBE, no PCI header).

@@ -2382,6 +2382,66 @@ static void biosfn_read_pixel (BH,CX,DX,AX) Bit8u BH;Bit16u CX;Bit16u DX;Bit16u 
 }
 
 // --------------------------------------------------------------------------------------------
+// BEL (07h) in teletype output: sound the PC speaker at about 896 Hz (PIT
+// counter 2 divisor 1331, the divisor of the IBM PC BIOS beep) for about 0.48 s
+// (31/64 s). The wait counts the refresh toggles in port 61h bit 4 (15.085 us
+// each) and ends early if the bit stops toggling. Interrupts are enabled during
+// the wait and disabled around the port writes, as in the IBM PC/AT BIOS; the
+// interrupt flag is as found on return. Port 61h is restored to its value on
+// entry, except that bits 0-1 stay clear if an interrupt handler cleared them.
+// 8086 code only.
+static void vga_beep()
+{
+ASM_START
+  push ax
+  push cx
+  push dx
+  pushf
+  cli
+  mov  al, #0xb6            ; PIT counter 2, LSB then MSB, mode 3 (square wave)
+  out  #0x43, al
+  mov  ax, #0x0533          ; 1193182 Hz / 1331 = about 896 Hz
+  out  #0x42, al
+  mov  al, ah
+  out  #0x42, al
+  in   al, #0x61
+  push ax                   ; port 61h as found
+  or   al, #0x03            ; bit 0: counter 2 gate, bit 1: speaker data
+  out  #0x61, al
+  sti
+  and  al, #0x10
+  mov  ah, al               ; last refresh bit seen
+  mov  cx, #32085           ; 32085 x 15.085 us = 31/64 s
+vga_beep_wait:
+  xor  dx, dx               ; 65536 polls without a toggle end the tone
+vga_beep_poll:
+  in   al, #0x61
+  and  al, #0x10
+  cmp  al, ah
+  jne  vga_beep_toggle
+  dec  dx
+  jnz  vga_beep_poll
+  jmp  vga_beep_done
+vga_beep_toggle:
+  mov  ah, al
+  loop vga_beep_wait
+vga_beep_done:
+  pop  ax
+  mov  ah, al               ; AH = port 61h on entry
+  cli
+  in   al, #0x61
+  or   al, #0xfc
+  and  ah, al               ; bits 0-1: entry value AND current value
+  mov  al, ah
+  out  #0x61, al
+  popf
+  pop  dx
+  pop  cx
+  pop  ax
+ASM_END
+}
+
+// --------------------------------------------------------------------------------------------
 static void biosfn_write_teletype (car, page, attr, flag)
 Bit8u car;Bit8u page;Bit8u attr;Bit8u flag;
 {// flag = WITH_ATTR / NO_ATTR
@@ -2409,7 +2469,7 @@ Bit8u car;Bit8u page;Bit8u attr;Bit8u flag;
  switch(car)
   {
    case 7:
-    //FIXME should beep
+    vga_beep();
     break;
 
    case 8:
