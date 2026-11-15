@@ -98,9 +98,8 @@ SHA-256.
   x86_64-linux is checked by CI. aarch64-linux and x86_64-darwin are not
   verified yet.
 - On unemupc98's open AT profile (`at-games-open` with a VGA card, the ROM at
-  C0000) FreeDOS boots to the prompt and the INT 10h probe reports no failure.
-  This was measured with the 0.8a-based ROM; the 0.9d-based ROM is not yet
-  qualified.
+  C0000) FreeDOS boots to the prompt and the INT 10h probe reports no failure,
+  with the 0.8a-based ROM and with the 0.9d-based ROM alike.
 
 ## Deviations from upstream
 
