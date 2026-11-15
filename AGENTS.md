@@ -23,6 +23,11 @@ The shared working rules are beads memories; read them at session start with
 build-and-release, publication-rule, bead-workflow. Cross-repository ids carry a
 tag, e.g. `upc-zvt (unemupc98)`; an untagged id is ours.
 
+Beads stay on the maintainer's machine: the Dolt database has no remote
+(`dolt.local-only`), so never run `bd dolt push` or add a Dolt remote, and
+`.beads/config.yaml` is not tracked. The generated sections below describe bd
+in general; this rule wins over them.
+
 ## Hard rules
 
 - **Never commit without the maintainer's request** (may be granted for a session).

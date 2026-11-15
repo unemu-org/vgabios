@@ -7,6 +7,7 @@ emulator needs an open video BIOS that runs on an **80286** with its
 register-level VGA, so that public machine images (DOS games and software)
 never depend on proprietary ROMs.
 
+- Repository: <https://github.com/unemu-org/vgabios>
 - Upstream: <https://savannah.nongnu.org/projects/vgabios/>, release
   `vgabios-0.8a` (tarball SHA-256
   `481042240ef0f1c918780c92a6bb42ad4d3f5d989b29502fa7ee7faf13a041b9`).
