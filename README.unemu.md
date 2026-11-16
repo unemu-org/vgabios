@@ -156,6 +156,17 @@ CI (`.forgejo/workflows/ci.yml`) runs `nix flake check` on x86_64-linux for
 every push to main, every release tag and every pull request, and prints the
 SHA-256s in its log. A release is tagged only on a commit whose CI run passed.
 
-unemupc98 fetches both files by SHA-256 (`vendor/vgabios/fetch.sh`), ships
-them with their corresponding source, and lists the ROM in its firmware
-catalogue as open firmware.
+Release assets: `nix run .#release-assets -- TAG [OUTDIR]` builds, from the
+tag's tree (never the working tree), `vgabios-std.bin`,
+`int10-probe-1200.img`, the corresponding source archive
+`vgabios-<version>-src.tar` and `SHA256SUMS`. The archive holds the tag's tree
+as `vgabios/` and a `NOTICE` made from `release/source-notice.txt.in`. GNU
+tar from the pinned nixpkgs packs it with fixed member order, owners and modes,
+and with the tag commit's time on every member, so it has the same bytes on
+every host. `.github/workflows/release.yml` runs it on GitHub when the
+maintainer publishes a release, or by hand for an existing tag, and attaches
+the files to the release.
+
+unemupc98 pins the ROM, the source archive and the probe image by SHA-256
+(`vendor/vgabios/fetch.sh` writes the same archive), ships the ROM with its
+corresponding source, and lists it in its firmware catalogue as open firmware.

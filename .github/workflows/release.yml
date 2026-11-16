@@ -1,0 +1,88 @@
+name: Release assets
+
+# Attach a release's files to its GitHub release: vgabios-std.bin, the
+# corresponding source archive vgabios-<version>-src.tar, the INT 10h probe
+# image and SHA256SUMS. They are built by `nix run .#release-assets` with the
+# tooling of the default branch from the release tag's tree; the ROM and probe
+# must match the SHA-256s in the tag message (README.unemu.md, "Releases").
+# The maintainer creates the release; this job only adds files. A file the
+# release already has is never replaced: it must be byte-identical, or the job
+# fails. A `release` event runs this file from the tag's commit, so a release
+# whose tag predates it (v0.9d-unemu.1) is done by hand with its tag.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (the release must already exist)
+        required: true
+      source_sha256:
+        description: Expected SHA-256 of the source archive (optional)
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-assets-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  assets:
+    name: assets (x86_64-linux)
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      EXPECTED_SOURCE_SHA256: ${{ inputs.source_sha256 }}
+    steps:
+      # The default branch carries the build tooling; the full history carries
+      # every release tag. actions/checkout v7.0.1, pinned by commit.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Nix
+        env:
+          NIX_INSTALLER_DIAGNOSTIC_ENDPOINT: ""
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix/tag/v3.24.1 \
+            | sh -s -- install --no-confirm
+          echo /nix/var/nix/profiles/default/bin >> "$GITHUB_PATH"
+
+      - name: Build the assets
+        run: nix run --no-update-lock-file .#release-assets -- "$TAG" assets
+
+      # Upload the files the release lacks; a file it has must be identical.
+      - name: Attach them to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          existing="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
+          mkdir -p published
+          upload=()
+          for f in assets/*; do
+            name="$(basename "$f")"
+            if grep -qxF "$name" <<<"$existing"; then
+              gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$name" --dir published
+              if ! cmp -s "$f" "published/$name"; then
+                echo "$name: the release already has different bytes; not replacing them" >&2
+                exit 1
+              fi
+              echo "$name: already attached, identical"
+            else
+              upload+=("$f")
+            fi
+          done
+          if [ "${#upload[@]}" -gt 0 ]; then
+            gh release upload "$TAG" "${upload[@]}" --repo "$GITHUB_REPOSITORY"
+          fi

@@ -1,5 +1,6 @@
 /result
 /result-*
+/release-assets/
 biossums
 vbetables-gen
 vbetables.h

@@ -135,6 +135,26 @@
           '';
         });
 
+      # nix run .#release-assets -- TAG [OUTDIR]: the ROM, the probe image and
+      # the deterministic source archive of a release tag, built from the tag's
+      # tree with this revision's tooling (scripts/release-assets.sh).
+      apps = forAll (system:
+        let
+          pkgs = pkgsFor system;
+          releaseAssets = pkgs.writeShellApplication {
+            name = "release-assets";
+            runtimeInputs = [ pkgs.gnutar pkgs.coreutils pkgs.gnused pkgs.gawk pkgs.git ];
+            text = "NOTICE_TEMPLATE=${./release/source-notice.txt.in}\n"
+              + builtins.readFile ./scripts/release-assets.sh;
+          };
+        in {
+          release-assets = {
+            type = "app";
+            program = "${releaseAssets}/bin/release-assets";
+            meta.description = "Build a release tag's ROM, probe image and source archive";
+          };
+        });
+
       devShells = forAll (system:
         let pkgs = pkgsFor system; in {
           default = pkgs.mkShell {

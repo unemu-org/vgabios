@@ -49,6 +49,7 @@ nix build                                  # result/vgabios-std.bin, .lst, .bin.
 nix flake check                            # check-286.sh, 55 AA 40, size, checksum, release SHA-256s
 nix build .#int10-probe                     # INT 10h probe floppy (tests/unemu)
 nix develop                                # dev86 (bcc, as86, ld86), make, nasm/ndisasm
+nix run .#release-assets -- TAG [OUTDIR]  # a release's ROM, probe, source archive
 ```
 
 CI (`.forgejo/workflows/ci.yml`) runs `nix flake check` on x86_64-linux for
